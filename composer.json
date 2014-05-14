@@ -1,0 +1,8 @@
+{
+    "name": "TPETb/TPPPTX",
+    "autoload": {
+        "psr-0" : {
+            "TPPPTX" : "src"
+        }
+    }
+}
