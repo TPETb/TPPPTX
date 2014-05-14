@@ -9,15 +9,24 @@
 namespace TPPPTX;
 
 
+/**
+ * Class PageGenerator
+ * @package TPPPTX
+ */
 class PageGenerator
 {
 
 
     /**
-     *
+     * @param $outputPath
+     * @param $pptxFileHandler
+     * @param $parsedData
+     * @param $options
+     * @return bool
      */
-    protected function savePageToDisk()
+    public function saveToDisk($outputPath, $pptxFileHandler, $parsedData, $options)
     {
 
+        return true;
     }
 } 

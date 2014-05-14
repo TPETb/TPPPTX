@@ -11,10 +11,8 @@ namespace TPPPTX;
 
 /**
  * Class FileHandler
- *
  * Can read and update contents of the .pptx file
  * Doesn't work with .pptx logic, just saves and writes
- *
  * @package TPPPTX
  */
 class FileHandler
@@ -22,7 +20,7 @@ class FileHandler
     /**
      * @var string
      */
-    protected $pptxFile = '';
+    protected $pptxFilepath = '';
     /**
      * @var \ZipArchive
      */
@@ -39,7 +37,16 @@ class FileHandler
             throw new \Exception('Provided file is not zip');
         }
 
-        $this->pptxFile = $filepath;
+        $this->pptxFilepath = $filepath;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getFilename()
+    {
+        return array_slice(explode('/', $this->pptxFilepath), -1, 1);
     }
 
 
@@ -61,8 +68,9 @@ class FileHandler
     public function read($filepath)
     {
         $filepath = $this->reformatFileName($filepath);
-        $fp = $this->pptxFileHandler->getStream($filepath);
-        if (!$fp) return "";
+        if (!$fp = $this->pptxFileHandler->getStream($filepath)) {
+            return false;
+        }
         return stream_get_contents($fp);
     }
 

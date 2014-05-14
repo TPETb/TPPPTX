@@ -9,6 +9,7 @@
 namespace TPPPTX;
 
 
+
 /**
  * Class Parser
  * Extracts all available data from .pptx file
@@ -33,7 +34,48 @@ class Parser
     {
         $this->pptxFileHandler = $file;
 
-        return array();
+        $data = array();
+
+        // We will need Presentation parser pretty much everywhere
+        $presentation = new Parser\Presentation($this);
+
+        // Parse Handout Master
+        $data['handout_master'] = '';
+
+
+        // Parse Slide Layouts
+        $data['slide_layouts'] = array();
+
+
+        // Parse Slide Masters
+        $data['slide_masters'] = array();
+
+
+        // Parse Slides
+        $slideParser = new Parser\Slide($this);
+        $data['slides'] = array();
+        foreach ($presentation->getSlidesFilepaths() as $filepath) {
+            $data['slides'][] = $slideParser->parse($filepath);
+        }
+
+
+        // Parse Notes Master
+        $data['notes_master'] = '';
+
+
+        // Parse Notes Slides
+        $data['notes_slides'] = array();
+
+
+        return $data;
+    }
+
+    /**
+     * @return \TPPPTX\FileHandler
+     */
+    public function getPptxFileHandler()
+    {
+        return $this->pptxFileHandler;
     }
 
 
@@ -43,12 +85,25 @@ class Parser
      * @param string $filepath Name of the original file.
      * @return string Relations file content
      */
-    public function getFileRelations($filepath)
+    public function parseFileRelations($filepath)
     {
         $fileNamePrefix = dirname($filepath);
         $fileNameSuffix = basename($filepath);
 
-        return $this->pptxFileHandler->read($fileNamePrefix."/_rels/".$fileNameSuffix.".rels");
+        $rels = new \DOMDocument();
+        $rels->loadXML($this->pptxFileHandler->read($fileNamePrefix."/_rels/".$fileNameSuffix.".rels"));
+        $xpath = new \DOMXPath($rels);
+        $xpath->registerNamespace('r', 'http://schemas.openxmlformats.org/package/2006/relationships'); // OFC there is no "r" namespace in file, but DOMXpath need an NS direly
+
+        $result = array();
+        foreach ($xpath->query('/r:Relationships/r:Relationship') as $relNode) {
+            $result[$relNode->getAttribute('Id')] = array(
+                'type' => $relNode->getAttribute('Type'),
+                'target' => $relNode->getAttribute('Target'),
+            );
+        }
+
+        return $result;
     }
 
 }

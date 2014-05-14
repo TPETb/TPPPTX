@@ -13,9 +13,9 @@ class Converter
 {
 
     /**
-     * @var string
+     * @var FileHandler
      */
-    protected $outputPath = '';
+    protected $pptxFileHandler;
 
     /**
      * @var string
@@ -27,7 +27,7 @@ class Converter
      */
     protected $pointPixelRatio = 12700;
 
-    
+
     /**
      * @param mixed $file
      * @param string $outputPath
@@ -42,12 +42,59 @@ class Converter
         $this->pptxFileHandler = $file;
 
         $this->outputPath = $outputPath;
-        $this->outputName = array_pop(explode('/', $outputPath));
+        $this->outputName = array_slice(explode('/', $outputPath), -1, 1);
 
         foreach ($options as $property => $value) {
             if (method_exists($this, 'set' . ucfirst($property))) {
                 $this->{'set' . ucfirst($property)}($value);
             }
         }
+
+        $parser = new Parser();
+        $data = $parser->parse($this->pptxFileHandler);
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+
+        $pageGenerator = new PageGenerator();
+        $pageGenerator->saveToDisk($this->outputPath, $this->pptxFileHandler, $data, array(
+            'outputName' => $this->outputName,
+        ));
     }
-} 
+
+    /**
+     * @param string $outputName
+     * @return Converter
+     */
+    public function setOutputName($outputName)
+    {
+        $this->outputName = $outputName;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getOutputName()
+    {
+        return $this->outputName;
+    }
+
+    /**
+     * @param int $pointPixelRatio
+     * @return Converter
+     */
+    public function setPointPixelRatio($pointPixelRatio)
+    {
+        $this->pointPixelRatio = $pointPixelRatio;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPointPixelRatio()
+    {
+        return $this->pointPixelRatio;
+    }
+}
