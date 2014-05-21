@@ -46,7 +46,7 @@ class FileHandler
      */
     public function getFilename()
     {
-        return array_slice(explode('/', $this->pptxFilepath), -1, 1);
+        return array_pop(array_slice(explode('/', $this->pptxFilepath), -1, 1));
     }
 
 
@@ -91,6 +91,12 @@ class FileHandler
     public function delete($filepath)
     {
 
+    }
+
+
+    public function extract($pathTo, $entries = null)
+    {
+        $this->pptxFileHandler->extractTo($pathTo, $entries);
     }
 
 

@@ -62,11 +62,24 @@ class Presentation
     {
         $paths = array();
         foreach ($this->xpath->query('/p:presentation/p:sldIdLst/p:sldId') as $relNode) {
-            $paths[] = "ppt/{$this->relations[$relNode->getAttribute('r:id')]['target']}"; // Don't forget that in relations paths are given relatively
+            $paths[] = $this->relations[$relNode->getAttribute('r:id')]['target'];
         }
 
         return $paths;
     }
+
+
+    public function getSlidesDimensions()
+    {
+        $node = $this->xpath->query('/p:presentation/p:sldSz')->item(0);
+
+        return array(
+            'width' => $node->getAttribute('cx'),
+            'height' => $node->getAttribute('cy'),
+            'type' => $node->getAttribute('type'),
+        );
+    }
+
 
 
     public function getHandoutMasterFilepath()

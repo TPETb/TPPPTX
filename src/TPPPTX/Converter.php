@@ -13,88 +13,46 @@ class Converter
 {
 
     /**
-     * @var FileHandler
-     */
-    protected $pptxFileHandler;
-
-    /**
-     * @var string
-     */
-    protected $outputName = '';
-
-    /**
      * @var int
      */
     protected $pointPixelRatio = 12700;
 
 
+    function __construct($options = array())
+    {
+        $this->setOptions($options);
+    }
+
+
     /**
      * @param mixed $file
      * @param string $outputPath
-     * @param array $options
      */
-    public function convert($file, $outputPath, array $options)
+    public function convert($file, $outputPath)
     {
         if (!$file instanceof FileHandler) {
             $file = new FileHandler($file);
         }
 
-        $this->pptxFileHandler = $file;
+        echo '<pre>';
+        $parser = new Parser($file);
+        if (isset($_GET['debug'])) print_r($parser);
+        echo '</pre>';
 
-        $this->outputPath = $outputPath;
-        $this->outputName = array_slice(explode('/', $outputPath), -1, 1);
+//        $pageGenerator = new PageGenerator(array(
+//            'pointPixelRatio' => $this->pointPixelRatio,
+//        ));
 
+//        $pageGenerator->saveToDisk($file, $data, $outputPath);
+    }
+
+
+    public function setOptions($options)
+    {
         foreach ($options as $property => $value) {
             if (method_exists($this, 'set' . ucfirst($property))) {
                 $this->{'set' . ucfirst($property)}($value);
             }
         }
-
-        $parser = new Parser();
-        $data = $parser->parse($this->pptxFileHandler);
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
-
-        $pageGenerator = new PageGenerator();
-        $pageGenerator->saveToDisk($this->outputPath, $this->pptxFileHandler, $data, array(
-            'outputName' => $this->outputName,
-        ));
-    }
-
-    /**
-     * @param string $outputName
-     * @return Converter
-     */
-    public function setOutputName($outputName)
-    {
-        $this->outputName = $outputName;
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOutputName()
-    {
-        return $this->outputName;
-    }
-
-    /**
-     * @param int $pointPixelRatio
-     * @return Converter
-     */
-    public function setPointPixelRatio($pointPixelRatio)
-    {
-        $this->pointPixelRatio = $pointPixelRatio;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getPointPixelRatio()
-    {
-        return $this->pointPixelRatio;
     }
 }

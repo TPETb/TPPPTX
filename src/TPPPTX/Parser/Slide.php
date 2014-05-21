@@ -8,86 +8,115 @@
 
 namespace TPPPTX\Parser;
 
-use \TPPPTX\FileHandler as FileHandler;
 use \TPPPTX\Parser as Parser;
 
 
+/**
+ * Class Slide
+ * @package TPPPTX\Parser
+ */
 class Slide
 {
-    /**
-     * @var FileHandler
-     */
-    protected $pptxFileHandler;
-
     /**
      * @var Parser
      */
     protected $parser;
 
     /**
-     * @param Parser $parser
+     * @var string
      */
-    function __construct(Parser $parser)
+    protected $filepath;
+
+
+    protected $shapes = array();
+
+
+    protected $pictures = array();
+
+
+
+    protected $media = array();
+
+
+    protected $parsed = false;
+
+    /**
+     * @param Parser $parser
+     * @param string $filepath
+     * @todo implement proper lazy loading
+     */
+    function __construct(Parser $parser, $filepath)
     {
         $this->parser = $parser;
+        $this->filepath = $filepath;
 
-        $this->pptxFileHandler = $parser->getPptxFileHandler();
+        $this->parse();
     }
 
 
-    public function parse($filepath)
+    protected function parse()
     {
+        // Prepare vars
         $slide = new \DOMDocument();
-        $slide->loadXML($this->pptxFileHandler->read($filepath));
+        $slide->loadXML($this->parser->getPptxFileHandler()->read($this->filepath));
         $xpath = new \DOMXPath($slide);
 
-        $relations = $this->parser->parseFileRelations($filepath);
+        $relations = $this->parser->parseFileRelations($this->filepath);
 
-        $shapes = array();
-        // Loop through shapes in slide
-        foreach ($xpath->query('/p:sld/p:cSld/p:spTree/p:sp') as $shapeNode) {
-            $shape = array();
 
-            // Try to retrieve shape type
-            if ($nvPr = $xpath->query('p:nvSpPr/p:nvPr/p:ph', $shapeNode)) {
-                foreach ($nvPr as $property) {
-                    if ($property->hasAttribute('type')) {
-                        $shape['type'] = $property->getAttribute('type');
-                    }
-                }
+        // Get shapes
+        $this->shapes = SlideHelper::parseShapes($xpath);
+        // Get pictures
+        $this->pictures = SlideHelper::parsePictures($xpath, $relations);
+        // Get media
+        $this->media = SlideHelper::collectMedia($relations);
+
+
+        // Parsing completed
+        $this->parsed = true;
+    }
+
+
+    /**
+     * @return bool|mixed
+     * @todo move this code to parse() method
+     */
+    public function getLayoutPath()
+    {
+        $relations = $this->parser->parseFileRelations($this->filepath);
+
+        foreach ($relations as $rel) {
+            if ($rel['type'] == 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout') {
+                return $rel['target'];
             }
-
-            // Try to retrieve offset and size
-            if ($xfrm = $xpath->query('p:spPr/a:xfrm', $shapeNode)->item(0)) {
-                $shape = array_merge($shape, array(
-                    'left' => $xpath->query('p:spPr/a:xfrm/a:off', $shapeNode)->item(0)->getAttribute('x'),
-                    'top' => $xpath->query('p:spPr/a:xfrm/a:off', $shapeNode)->item(0)->getAttribute('y'),
-                    'width' => $xpath->query('p:spPr/a:xfrm/a:ext', $shapeNode)->item(0)->getAttribute('cx'),
-                    'height' => $xpath->query('p:spPr/a:xfrm/a:ext', $shapeNode)->item(0)->getAttribute('cy'),
-                ));
-            }
-
-            // Try to retrieve textual content
-            if ($txBody = $xpath->query('p:txBody', $shapeNode)->item(0)) {
-                $shape['text'] = array();
-                foreach ($xpath->query('a:p', $txBody) as $paragraph) {
-                    $p = array();
-                    foreach ($xpath->query('a:r/a:t', $paragraph) as $textNode) {
-                        $p[] = array(
-                            'value' => $textNode->nodeValue,
-                        );
-                    }
-                    $shape['text'][] = $p;
-                }
-            }
-
-            // Append the shape to array
-            $shapes[] = $shape;
         }
 
-        return array(
-            'shapes' => $shapes,
-            'pictures' => array(),
-        );
+        return null;
     }
+
+    /**
+     * @return array
+     */
+    public function getMedia()
+    {
+        return $this->media;
+    }
+
+    /**
+     * @return array
+     */
+    public function getShapes()
+    {
+        return $this->shapes;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPictures()
+    {
+        return $this->pictures;
+    }
+
+
 }
