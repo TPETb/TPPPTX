@@ -13,28 +13,51 @@ namespace TPPPTX;
  * Class PageGenerator
  * @package TPPPTX
  */
+use TPPPTX\PageGenerator\StyleHelper;
+use TPPPTX\PageGenerator\UnitConverter;
+
+/**
+ * Class PageGenerator
+ * @package TPPPTX
+ */
 class PageGenerator
 {
-    protected $pointPixelRatio = 12700;
 
-    protected $parsedData;
     /**
-     * @var FileHandler
+     * @var Parser
      */
-    protected $pptxFileHandler;
-    
-    
+    protected $parser;
+
+    /**
+     * @var \DOMDocument
+     */
     protected $dom;
 
 
-    function __construct($options)
+    /**
+     * @var $this ->unitConverter
+     */
+    protected $unitConverter;
+
+
+    /**
+     * @param Parser $parser
+     * @param array $options
+     */
+    function __construct(Parser $parser, array $options = array())
     {
-        $this->setOptions($options);
-        
+        $this->parser = $parser;
         $this->dom = new \DOMDocument();
+
+        $this->unitConverter = new UnitConverter();
+
+        $this->setOptions($options);
     }
 
 
+    /**
+     * @param array $options
+     */
     public function setOptions(array $options)
     {
         foreach ($options as $property => $value) {
@@ -45,26 +68,14 @@ class PageGenerator
     }
 
 
-    public function saveToDisk($file, $data, $output)
+    /**
+     * @param $output
+     */
+    public function saveAs($output)
     {
         $assetsPath = $output . '_files';
+        $assetsUrl = array_pop(array_slice(explode('/', $assetsPath), -1, 1));
 
-        $file->extract($assetsPath);
-//        rename($assetsPath . '/ppt/media', $assetsPath . '/media');
-        copy(dirname(__FILE__) . '/../../static/main.js', $assetsPath . '/main.js');
-        copy(dirname(__FILE__) . '/../../static/main.css', $assetsPath . '/main.css');
-
-        $this->dom = $this->buildPageDom($data, array_pop(array_slice(explode('/', $assetsPath), -1, 1)));
-
-        file_put_contents($output, $this->dom->saveHtml());
-
-
-        return true;
-    }
-
-
-    protected function buildPageDom($data, $assetsUrl)
-    {
         $html = $this->dom->createElement('html');
 
         $head = $this->dom->createElement('head');
@@ -74,11 +85,7 @@ class PageGenerator
         $css->setAttribute('href', $assetsUrl . '/main.css');
         $head->appendChild($css);
         $css = $this->dom->createElement('style');
-        $css->nodeValue = '
-        .slide {
-            width: ' . $data['slide_dimensions']['width'] / $this->pointPixelRatio . 'px;
-            height: ' . $data['slide_dimensions']['height'] / $this->pointPixelRatio . 'px;
-        }';
+        $css->nodeValue = StyleHelper::buildSlideDimensionsStyle($this->parser->getPresentation());
         $head->appendChild($css);
         $js = $this->dom->createElement('script');
         $js->setAttribute('type', 'text/javascript');
@@ -88,72 +95,161 @@ class PageGenerator
 
 
         $body = $this->dom->createElement('body');
-        foreach ($data['slides'] as $slideData) {
-            $slide = $this->dom->createElement('div');
-            $slide->setAttribute('class', 'slide');
+        foreach ($this->parser->getSlides() as $i => $slide) {
+            // Prepare slide container
+            $slideDiv = $this->dom->createElement('div');
+            $slideClasses = array('slide', 'slide-' . $i);
+            if ($slide->getLayout()) {
+                $slideClasses[] = 'slide-layout-' . $slide->getLayout()->getUid();
+            }
+            if ($slide->getLayout()->getMaster()) {
+                $slideClasses[] = 'slide-master-' . $slide->getLayout()->getMaster()->getUid();
+            }
+            $slideDiv->setAttribute('class', implode(' ', $slideClasses));
 
-            $this->appendSlideContent($slide, $slideData, $assetsUrl);
-            if ($slideData['layout']) {
-                $this->appendSlideContent($slide, $data['slide_layouts'][$slideData['layout']], $assetsUrl);
+            // Generate slide-wide styles
+            //      Presentation
+            $css = $this->dom->createElement('style');
+            $css->nodeValue .= StyleHelper::convertTextStylesSetToCss(
+                $this->parser->getPresentation()->getDefaultTextStyles(),
+                $slide->getMaster(),
+                ".slide-{$i} ");
+            //      Master
+            //          Title
+            $css->nodeValue .= StyleHelper::convertTextStylesSetToCss(
+                $slide->getMaster()->getTextStyles()['title'],
+                $slide->getMaster(),
+                ".slide-{$i}" . '.slide-master-' . $slide->getLayout()->getMaster()->getUid() . ' .title ');
+            //          Body
+            $css->nodeValue .= StyleHelper::convertTextStylesSetToCss(
+                $slide->getMaster()->getTextStyles()['body'],
+                $slide->getMaster(),
+                ".slide-{$i}" . '.slide-master-' . $slide->getLayout()->getMaster()->getUid() . ' .body ');
+            //          Other
+            $css->nodeValue .= StyleHelper::convertTextStylesSetToCss(
+                $slide->getMaster()->getTextStyles()['other'],
+                $slide->getMaster(),
+                ".slide-{$i}" . '.slide-master-' . $slide->getLayout()->getMaster()->getUid() . ' .other ');
+
+            $slideDiv->appendChild($css);
+
+
+            // Slide shapes
+            foreach (array_merge($slide->getMaster()->getShapes(), $slide->getLayout()->getShapes(), $slide->getShapes()) as $shape) {
+                // Remember that getShapes() method of Layout and Master will not return placeholders so don't worry they are all in same list
+                if ($shape['placeholder']) {
+                    // This shape is produced by placeholder and therefore its properties should be taken from it
+                    $placeholder = $slide->getLayout()->getPlaceholder($shape['placeholder']);
+                    $shape['form'] = $shape['form'] ? : $placeholder['form'];
+                    $shape['txBody']['styles'] = $shape['txBody']['styles'] ? : $placeholder['txBody']['styles'];
+                }
+
+                $shapeDiv = $this->dom->createElement('div');
+                $shapeId = 'Shape_' . substr(md5(uniqid()), 0, 6);
+                $shapeDiv->setAttribute('id', $shapeId);
+
+                if (isset($shape['form'])) {
+                    $shapeDiv->setAttribute('style', StyleHelper::buildFormStyle($shape['form']));
+                } else {
+//            return null;
+                }
+
+                $shapeDivClasses = array('shape');
+                if ($shape['placeholder']) {
+                    switch ($shape['placeholder']['type']) {
+                        case 'ctrTitle':
+                        case 'title':
+                            $shapeDivClasses[] = 'title';
+                            break;
+                        case 'body':
+                        case null:
+                        default:
+                            $shapeDivClasses[] = 'body';
+                            break;
+                    }
+                } else {
+                    $shapeDivClasses[] = 'body';
+                }
+                $shapeDiv->setAttribute('class', implode(' ', $shapeDivClasses));
+
+                // Go for shape styles!
+                if ($shape['txBody']['styles']) {
+                    $css = $this->dom->createElement('style');
+                    $css->nodeValue .= StyleHelper::convertTextStylesSetToCss(
+                        $shape['txBody']['styles'],
+                        $slide->getMaster(),
+                        "#{$shapeId} ");
+
+                    $shapeDiv->appendChild($css);
+                }
+
+                // Add the text content
+                foreach ($shape['txBody']['content'] as $paragraph) {
+                    $p = $this->dom->createElement('p');
+                    $p->setAttribute('class', 'lvl-' . $paragraph['lvl']);
+                    if ($paragraph['pPr']['buChar']) {
+                        $bullet = $this->dom->createElement('span');
+                        $bullet->setAttribute('class', 'bullet');
+                        $bullet->nodeValue = htmlentities($paragraph['pPr']['buChar']) . '&nbsp;&nbsp;';
+                        $p->appendChild($bullet);
+                    }
+                    foreach ($paragraph['r'] as $textPiece) {
+                        if ($textPiece['t'] == 'br') {
+                            $p->appendChild($this->dom->createElement('br'));
+                        } else {
+                            $span = $this->dom->createElement('span');
+                            $span->nodeValue = htmlentities($textPiece['t']);
+                            if ($textPiece['rPr']) {
+                                $span->setAttribute('style', StyleHelper::textCharacterPropertiesToCss($textPiece['rPr'], $slide->getMaster()));
+                            }
+                            $p->appendChild($span);
+                        }
+                    }
+                    $shapeDiv->appendChild($p);
+                }
+
+                $slideDiv->appendChild($shapeDiv);
             }
 
-            $body->appendChild($slide);
+            // Layout and master slides
+
+
+            // Add pictures
+            foreach (array_merge($slide->getPictures(), $slide->getLayout()->getPictures(), $slide->getMaster()->getPictures()) as $picture) {
+                $img = $this->dom->createElement('img');
+                $img->setAttribute('class', 'pic');
+
+                if (isset($picture['form'])) {
+                    $img->setAttribute('style', StyleHelper::buildFormStyle($picture['form']));
+                } else {
+                    continue;
+                }
+
+                $img->setAttribute('src', str_replace('ppt/media', $assetsUrl, $picture['image']['src']));
+
+                $slideDiv->appendChild($img);
+            }
+
+            $body->appendChild($slideDiv);
         }
 
 
         $html->appendChild($body);
         $this->dom->appendChild($html);
 
-        return $this->dom;
-    }
+        // Store file
+        $this->dom->saveHTMLFile($output);
 
+//        return;
 
-    protected function appendSlideContent (&$slide, $slideContent, $assetsUrl)
-    {
-        foreach ($slideContent['shapes'] as $shapeData) {
-            $shape = $this->dom->createElement('div');
-            $shape->setAttribute('class', 'shape ' . isset($shapeData['type']) ? : '');
-            if (isset($shapeData['form'])) {
-                $shape->setAttribute('style', '
-                        width: ' . $shapeData['form']['width'] / $this->pointPixelRatio . 'px;
-                        height: ' . $shapeData['form']['height'] / $this->pointPixelRatio . 'px;
-                        left: ' . $shapeData['form']['left'] / $this->pointPixelRatio . 'px;
-                        top: ' . $shapeData['form']['top'] / $this->pointPixelRatio . 'px;
-                    ');
-            }
+        // Store assets
+        mkdir($assetsPath);
+        copy(dirname(__FILE__) . '/../../static/main.js', $assetsPath . '/main.js');
+        copy(dirname(__FILE__) . '/../../static/main.css', $assetsPath . '/main.css');
 
-            foreach ($shapeData['text'] as $paragraph) {
-                $p = $this->dom->createElement('p');
-                foreach ($paragraph as $textPiece) {
-                    $span = $this->dom->createElement('span');
-                    $span->nodeValue = htmlentities($textPiece['value']);
-                    $p->appendChild($span);
-                }
-                $shape->appendChild($p);
-            }
-
-            $slide->appendChild($shape);
-        }
-
-        foreach ($slideContent['pictures'] as $pictureData) {
-            $img = $this->dom->createElement('img');
-            $img->setAttribute('class', 'pic');
-            $img->setAttribute('style', '
-                    width: ' . $pictureData['form']['width'] / $this->pointPixelRatio . 'px;
-                    height: ' . $pictureData['form']['height'] / $this->pointPixelRatio . 'px;
-                    left: ' . $pictureData['form']['left'] / $this->pointPixelRatio . 'px;
-                    top: ' . $pictureData['form']['top'] / $this->pointPixelRatio . 'px;
-                ');
-            $img->setAttribute('src', $assetsUrl . str_replace('..', '/ppt', $pictureData['image']['src']));
-
-            $slide->appendChild($img);
+        // Extract media
+        foreach ($this->parser->getMedia() as $filepath) {
+            file_put_contents($assetsPath . '/' . array_pop(array_slice(explode('/', $filepath), -1, 1)), $this->parser->getPptxFileHandler()->read($filepath));
         }
     }
-
-
-    protected function buildSlideSubContainerDom($data)
-    {
-
-    }
-
 } 

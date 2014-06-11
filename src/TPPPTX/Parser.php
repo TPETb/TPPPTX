@@ -13,8 +13,8 @@ namespace TPPPTX;
  * Class Parser
  * Extracts all available data from .pptx file
  * Result is an assoc array
- *
  * @package TPPPTX
+ * @todo add default values instead of omitted in text styles
  */
 class Parser
 {
@@ -31,18 +31,10 @@ class Parser
     protected $registry;
 
 
-    protected $fileParsed = false;
-
-
-    protected $index = array(
-        'presentation' => null,
-        'handout_master' => null,
-        'slides' => array(),
-        'slide_layouts' => array(),
-        'slide_masters' => array(),
-        'notes_slides' => array(),
-        'notes_master' => null,
-    );
+    /**
+     * @var bool
+     */
+    protected $parsed = false;
 
 
     /**
@@ -59,60 +51,158 @@ class Parser
 
 
     /**
+     * Generally this is useless method in fact it only just executes full scan of .pptx instead of waiting for lazy load
+     * Never the less this method is awesome for debug purposes =)
+     * @todo obsolete and remove it
      */
     protected function parse()
     {
-        // We will need Presentation parser pretty much everywhere
-        $presentation = new Parser\Presentation($this);
-        $filepath = 'ppt/presentation.xml';
-        $this->registry->set($filepath, $presentation);
-        $this->index['presentation'] = $filepath;
-
-
         // Parse Handout Master
 
 
         // Parse Slides
-        foreach ($presentation->getSlidesFilepaths() as $filepath) {
-            $slide = new Parser\Slide($this, $filepath);
-            $this->registry->set($filepath, $slide);
-            $this->index['slides'][$filepath] = $filepath;
+        foreach ($this->getSlides() as $slide) {
+//            d($slide);
+//            d($slide->getUid());
         }
 
 
         // Parse Slide Layouts
-        foreach ($this->index['slides'] as $slidePath) {
-            $slideLayoutPath = $this->registry[$slidePath]->getLayoutPath();
-            if (!isset($this->index['slide_layouts'][$slideLayoutPath])) {
-                $slideLayout = new Parser\SlideLayout($this, $slideLayoutPath);
-                $this->registry[$slideLayoutPath] = $slideLayout;
-                $this->index['slide_layouts'][$slideLayoutPath] = $slideLayoutPath;
-            }
+        foreach ($this->getSlides() as $slide) {
+            $slideLayout = $slide->getLayout();
+//            d($slideLayout);
+//            d($slideLayout->getUid());
         }
 
 
         // Parse Slide Masters
-
+        foreach ($this->getSlides() as $slide) {
+            $slideMaster = $slide->getLayout()->getMaster();
+//            d($slideMaster);
+//            d($slideMaster->getUid());
+        }
 
 
         // Parse slide dimensions
-        $data['slide_dimensions'] = $presentation->getSlidesDimensions();
 
 
         // Parse Notes Master
-        $data['notes_master'] = '';
 
 
         // Parse Notes Slides
-        $data['notes_slides'] = array();
 
 
-        // Parse Media
-
-
-
-        $this->fileParsed = true;
+        $this->parsed = true;
     }
+
+
+    /**
+     * Returns instance of Presentation. Creates one if doesn't exist. Adds to Registry
+     * @return Parser\Presentation
+     * @throws \Exception
+     */
+    public function getPresentation()
+    {
+        if (isset($this->registry['ppt/presentation.xml']))
+            return $this->registry['ppt/presentation.xml'];
+
+        if (!$this->pptxFileHandler->read('ppt/presentation.xml')) {
+            throw new \Exception('Non-existing slide requested');
+        }
+
+        return $this->registry['ppt/presentation.xml'] = new Parser\Presentation($this);
+    }
+
+
+    /**
+     * Returns array of Slide instances
+     * @return Parser\Slide[]
+     */
+    public function getSlides()
+    {
+        $slides = array();
+        foreach ($this->getPresentation()->getSlidesFilepaths() as $filepath) {
+            $slides[] = $this->getSlide($filepath);
+        }
+
+        return $slides;
+    }
+
+
+    /**
+     * @param $filepath
+     * @return Parser\Slide
+     * @throws \Exception
+     */
+    public function getSlide($filepath)
+    {
+        if (isset($this->registry[$filepath])) 
+            return $this->registry[$filepath];
+        
+        if (!$this->pptxFileHandler->read($filepath)) {
+            throw new \Exception('Non-existing slide requested');
+        }
+
+        return $this->registry[$filepath] = new Parser\Slide($this, $filepath);
+    }
+
+
+    /**
+     * @param $filepath
+     * @return Parser\SlideLayout
+     * @throws \Exception
+     */
+    public function getSlideLayout($filepath)
+    {
+        if (isset($this->registry[$filepath]))
+            return $this->registry[$filepath];
+
+        if (!$this->pptxFileHandler->read($filepath)) {
+            throw new \Exception('Non-existing slide layout requested');
+        }
+
+        return $this->registry[$filepath] = new Parser\SlideLayout($this, $filepath);
+    }
+
+
+    /**
+     * @param $filepath
+     * @return Parser\SlideMaster
+     * @throws \Exception
+     */
+    public function getSlideMaster($filepath)
+    {
+        if (isset($this->registry[$filepath]))
+            return $this->registry[$filepath];
+
+        if (!$this->pptxFileHandler->read($filepath)) {
+            throw new \Exception('Non-existing slide master requested');
+        }
+
+        return $this->registry[$filepath] = new Parser\SlideMaster($this, $filepath);
+    }
+
+
+    /**
+     * @param $filepath
+     * @return Parser\Theme
+     * @throws \Exception
+     */
+    public function getTheme($filepath)
+    {
+        if (isset($this->registry[$filepath]))
+            return $this->registry[$filepath];
+
+        if (!$this->pptxFileHandler->read($filepath)) {
+            throw new \Exception('Non-existing slide master requested');
+        }
+
+        return $this->registry[$filepath] = new Parser\Theme($this, $filepath);
+    }
+
+
+
+
 
     /**
      * @return \TPPPTX\FileHandler
@@ -127,7 +217,7 @@ class Parser
      * Returns relations of given file as an array
      *
      * @param string $filepath Name of the original file.
-     * @return string Relations file content
+     * @return array Relations file content
      */
     public function parseFileRelations($filepath)
     {
@@ -137,6 +227,10 @@ class Parser
 
         if (isset($this->registry[$relsPath])) {
             return $this->registry[$relsPath];
+        }
+
+        if (!$this->pptxFileHandler->read($relsPath)) {
+            return null;
         }
 
         $rels = new \DOMDocument();
@@ -173,5 +267,22 @@ class Parser
     public function getRegistry()
     {
         return $this->registry;
+    }
+
+
+    /**
+     * Returns all media used in presentation
+     * @return array
+     */
+    public function getMedia()
+    {
+        $media = array();
+        foreach ($this->getSlides() as $slide) {
+            $media = array_merge($media, $slide->getMedia());
+            $media = array_merge($media, $slide->getLayout()->getMedia());
+            $media = array_merge($media, $slide->getMaster()->getMedia());
+        }
+
+        return $media;
     }
 }

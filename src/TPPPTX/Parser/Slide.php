@@ -15,66 +15,10 @@ use \TPPPTX\Parser as Parser;
  * Class Slide
  * @package TPPPTX\Parser
  */
-class Slide
+class Slide extends SlideAbstract
 {
-    /**
-     * @var Parser
-     */
-    protected $parser;
 
-    /**
-     * @var string
-     */
-    protected $filepath;
-
-
-    protected $shapes = array();
-
-
-    protected $pictures = array();
-
-
-
-    protected $media = array();
-
-
-    protected $parsed = false;
-
-    /**
-     * @param Parser $parser
-     * @param string $filepath
-     * @todo implement proper lazy loading
-     */
-    function __construct(Parser $parser, $filepath)
-    {
-        $this->parser = $parser;
-        $this->filepath = $filepath;
-
-        $this->parse();
-    }
-
-
-    protected function parse()
-    {
-        // Prepare vars
-        $slide = new \DOMDocument();
-        $slide->loadXML($this->parser->getPptxFileHandler()->read($this->filepath));
-        $xpath = new \DOMXPath($slide);
-
-        $relations = $this->parser->parseFileRelations($this->filepath);
-
-
-        // Get shapes
-        $this->shapes = SlideHelper::parseShapes($xpath);
-        // Get pictures
-        $this->pictures = SlideHelper::parsePictures($xpath, $relations);
-        // Get media
-        $this->media = SlideHelper::collectMedia($relations);
-
-
-        // Parsing completed
-        $this->parsed = true;
-    }
+    protected $aggregatedShapes = array();
 
 
     /**
@@ -94,29 +38,22 @@ class Slide
         return null;
     }
 
-    /**
-     * @return array
-     */
-    public function getMedia()
-    {
-        return $this->media;
-    }
 
     /**
-     * @return array
+     * @return SlideLayout
      */
-    public function getShapes()
+    public function getLayout()
     {
-        return $this->shapes;
+        return $this->parser->getSlideLayout($this->getLayoutPath());
     }
+
 
     /**
-     * @return array
+     * @return SlideMaster
      */
-    public function getPictures()
+    public function getMaster()
     {
-        return $this->pictures;
+        return $this->getLayout()->getMaster();
     }
-
 
 }

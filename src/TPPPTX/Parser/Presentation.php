@@ -8,56 +8,36 @@
 
 namespace TPPPTX\Parser;
 
-use \TPPPTX\FileHandler as FileHandler;
 use \TPPPTX\Parser as Parser;
 
 /**
  * Class Presentation
  * @package TPPPTX\Parser
  */
-class Presentation
+class Presentation extends XmlFileBasedEntity
 {
-
-    /**
-     * @var FileHandler
-     */
-    protected $pptxFileHandler;
-
-    /**
-     * @var Parser
-     */
-    protected $parser;
-
-    /**
-     * @var \DOMDocument
-     */
-    protected $presentation;
-
-    /**
-     * @var \DOMXpath
-     */
-    protected $xpath;
-
-
-    protected $relations = array();
 
     /**
      * @param Parser $parser
      */
     function __construct(Parser $parser)
     {
-        $this->parser = $parser;
-
-        $this->pptxFileHandler = $parser->getPptxFileHandler();
-
-        $this->presentation = new \DOMDocument();
-        $this->presentation->loadXML($this->pptxFileHandler->read('ppt/presentation.xml'));
-        $this->xpath = new \DOMXPath($this->presentation);
-
-        $this->relations = $this->parser->parseFileRelations('ppt/presentation.xml');
+        parent::__construct($parser, 'ppt/presentation.xml');
     }
 
 
+    /**
+     *
+     */
+    protected function parse()
+    {
+
+    }
+
+
+    /**
+     * @return array
+     */
     public function getSlidesFilepaths()
     {
         $paths = array();
@@ -69,6 +49,9 @@ class Presentation
     }
 
 
+    /**
+     * @return array
+     */
     public function getSlidesDimensions()
     {
         $node = $this->xpath->query('/p:presentation/p:sldSz')->item(0);
@@ -81,15 +64,34 @@ class Presentation
     }
 
 
-
+    /**
+     *
+     */
     public function getHandoutMasterFilepath()
     {
 
     }
 
 
+    /**
+     * @return array
+     */
     public function getSlideMastersFilepaths()
     {
+        $paths = array();
+        foreach ($this->xpath->query('/p:presentation/p:sldMasterIdLst/p:sldMasterId') as $relNode) {
+            $paths[] = $this->relations[$relNode->getAttribute('r:id')]['target'];
+        }
 
+        return $paths;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getDefaultTextStyles()
+    {
+        return StyleHelper::parseTextParagraphPropertiesSet($this->xpath, $this->xpath->query('/p:presentation/p:defaultTextStyle')->item(0));
     }
 } 

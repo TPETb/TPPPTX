@@ -9,6 +9,6 @@
 namespace TPPPTX\Parser;
 
 
-class NotesMaster {
+class NotesMaster extends XmlFileBasedEntity {
 
 } 

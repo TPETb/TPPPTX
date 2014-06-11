@@ -9,6 +9,7 @@
 namespace TPPPTX\Parser;
 
 
-class PresentationProperties {
+class PresentationProperties
+{
 
 } 

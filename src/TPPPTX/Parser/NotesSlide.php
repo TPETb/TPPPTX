@@ -9,6 +9,7 @@
 namespace TPPPTX\Parser;
 
 
-class NotesSlide {
+class NotesSlide extends XmlFileBasedEntity
+{
 
 } 

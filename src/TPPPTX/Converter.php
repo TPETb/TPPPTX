@@ -9,15 +9,16 @@
 namespace TPPPTX;
 
 
+/**
+ * Class Converter
+ * @package TPPPTX
+ */
 class Converter
 {
 
     /**
-     * @var int
+     * @param array $options
      */
-    protected $pointPixelRatio = 12700;
-
-
     function __construct($options = array())
     {
         $this->setOptions($options);
@@ -36,12 +37,11 @@ class Converter
 
         echo '<pre>';
         $parser = new Parser($file);
-        if (isset($_GET['debug'])) print_r($parser);
+//        if (isset($_GET['debug'])) d($parser);
         echo '</pre>';
 
-//        $pageGenerator = new PageGenerator(array(
-//            'pointPixelRatio' => $this->pointPixelRatio,
-//        ));
+        $pageGenerator = new PageGenerator($parser);
+        $pageGenerator->saveAs($outputPath);
 
 //        $pageGenerator->saveToDisk($file, $data, $outputPath);
     }

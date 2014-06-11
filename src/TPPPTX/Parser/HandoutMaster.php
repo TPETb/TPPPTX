@@ -9,6 +9,6 @@
 namespace TPPPTX\Parser;
 
 
-class HandoutMaster {
+class HandoutMaster extends XmlFileBasedEntity {
 
 } 
