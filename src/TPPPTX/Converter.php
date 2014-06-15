@@ -55,4 +55,15 @@ class Converter
             }
         }
     }
+
+
+    public function unmarshal($file)
+    {
+        if (!$file instanceof FileHandler) {
+            $file = new FileHandler($file);
+        }
+        $parser = new Parser($file);
+
+        $parser->unmarshal();
+    }
 }
