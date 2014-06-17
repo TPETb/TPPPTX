@@ -37,7 +37,7 @@ class SlideMasterIdListEntry extends ComplexAbstract
             'r:id' => null,
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

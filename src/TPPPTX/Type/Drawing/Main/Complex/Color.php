@@ -44,6 +44,6 @@ class Color extends ComplexAbstract
 
     public function toCss()
     {
-        return $this->children()[0]->toCss();
+        return $this->getChildren()[0]->toCss();
     }
 } 

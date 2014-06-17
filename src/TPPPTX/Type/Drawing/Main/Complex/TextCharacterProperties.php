@@ -152,7 +152,7 @@ class TextCharacterProperties extends ComplexAbstract
             'bmk' => '',
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -179,11 +179,11 @@ class TextCharacterProperties extends ComplexAbstract
         if ($this->u->isPresent() && $this->u->get())
             $style .= ' text-decoration:underline;';
 
-        if (count($tmp = $this->children('lnSpc')))
+        if (count($tmp = $this->getChildren('lnSpc')))
             $style .= ' line-height:' . $tmp[0]->toCss() . ';';
-        if (count($tmp = $this->children('latin')))
+        if (count($tmp = $this->getChildren('latin')))
             $style .= ' font-family:' . $tmp[0]->toCss() . ';';
-        if (count($tmp = $this->children('solidFill')))
+        if (count($tmp = $this->getChildren('solidFill')))
             $style .= ' color:' . $tmp[0]->toCss() . ';';
 
         return $style;

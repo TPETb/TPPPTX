@@ -62,7 +62,7 @@ class SchemeColor extends ComplexAbstract {
             'val' => new SchemeColorVal()
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

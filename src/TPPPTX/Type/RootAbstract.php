@@ -32,7 +32,7 @@ class RootAbstract extends ComplexAbstract
         if (isset($options['presentation']))
             $this->presentation = & $options['presentation'];
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -80,6 +80,17 @@ class RootAbstract extends ComplexAbstract
     {
         return $this->presentation;
     }
+
+
+    /**
+     * @return array
+     */
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+
+
 
 
 }

@@ -60,25 +60,38 @@ class GroupTransform2D extends ComplexAbstract
     /**
      * @return string
      */
-    public function toCss()
+    public function toCssInline()
     {
         $style = ' position: absolute;';
 
-        if ($tmp = $this->children('off')) {
-            $style .= ' left:' . $tmp[0]->x->toCss()  .';';
-            $style .= ' top:' . $tmp[0]->y->toCss() .';';
+        if ($tmp = $this->getChildren('off')) {
+            $style .= ' left:' . $tmp[0]->x->toCss() . ';';
+            $style .= ' top:' . $tmp[0]->y->toCss() . ';';
         }
 
-        if ($tmp = $this->children('ext')) {
-            $style .= ' width:' . $tmp[0]->cx->toCss() .';';
-            $style .= ' height:' . $tmp[0]->cy->toCss() .';';
+
+
+        if ($tmp = $this->getChildren('ext')) {
+            $style .= ' width:' . $tmp[0]->cx->toCss() . ';';
+            $style .= ' height:' . $tmp[0]->cy->toCss() . ';';
         }
 
         if ($this->rot->isPresent()) {
-            $style .= ' -ms-transform: rotate(' . $this->rot . ')' .';';
-            $style .= ' -webkit-transform: rotate(' . $this->rot . ')' .';';
-            $style .= ' transform: rotate(' . $this->rot . ')' .';';
+            $style .= ' -ms-transform: rotate(' . $this->rot . ')' . ';';
+            $style .= ' -webkit-transform: rotate(' . $this->rot . ')' . ';';
+            $style .= ' transform: rotate(' . $this->rot . ')' . ';';
         }
+
+//        if (($tmp = $this->child('chExt')) && $this->child('ext') && $this->child('ext')->cx->get() > 0) {
+//            $zoom = $this->child('ext')->cx->get() / $tmp->cx->get();
+//            $style .= ' zoom:' . $zoom . ';';
+//        }
+//
+        if ($tmp = $this->child('chOff')) {
+//                $style .= ' margin-left:-' . $tmp->x->toCss() . ';';
+//                $style .= ' margin-top:-' . $tmp->y->toCss() . ';';
+        }
+
 
         return $style;
     }

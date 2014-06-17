@@ -36,10 +36,10 @@ class TextBody extends ComplexAbstract
     {
         $container = $dom->createElement('div');
 
-        if ($tmp = array_shift($this->children('bodyPr')))
+        if ($tmp = array_shift($this->getChildren('bodyPr')))
             $container->setAttribute('style', $tmp->toCssInline());
 
-        foreach ($this->children('p') as $child) {
+        foreach ($this->getChildren('p') as $child) {
             if ($tmp = $child->toHtmlDom($dom))
                 $container->appendChild($tmp);
         }
@@ -48,43 +48,27 @@ class TextBody extends ComplexAbstract
     }
 
 
-    public function merge(ComplexAbstract $successor)
+    public function merge(ComplexAbstract $ancestor)
     {
-        // To merge text body we only need to remove p's from ancestor and then proceed normally
-        foreach ($this->children as $key => $child) {
-            if ($child->tagName == 'p') {
-                unset ($this->children[$key]);
-            }
-        }
-
-        $this->nodeValue = $successor->nodeValue;
-        $this->root =& $successor->root;
-        $this->parent =& $successor->parent;
-
-        foreach ($successor->getAttributes() as $key => $value) {
-            if (($value instanceof SimpleAbstract && $value->isPresent())
-                || $value !== null
+        foreach ($this->getAttributes() as $key => $value) {
+            if (($value instanceof SimpleAbstract && !$value->isPresent())
+                || $value == null
             ) {
-                $this->setAttribute($key, $value);
+                $this->setAttribute($key, $ancestor->$key);
             }
         }
 
-        foreach ($successor->children() as $sChild) {
-            $matched = false;
-            // If there is only one, it replaces the parental
-            if (count($successor->children($sChild->tagName)) == 1) {
-                foreach ($this->children as &$pChild) {
-                    if ($pChild->tagName == $sChild->tagName) {
-                        $pChild->merge($sChild);
-                        $matched = true;
-                        break;
-                    }
-                }
-            } else {
-            }
+        // Loop ancestor children
+        foreach ($ancestor->getChildren() as $key => $aChild) {
+            if ($aChild->tagName == 'p')
+                continue; // p's from ancestor should be ignored
 
-            if (!$matched) {
-                $this->addChild($sChild);
+            if ($this->child($aChild->tagName)) {
+                // Descendant has such child too
+                $this->children[$aChild->tagName . '0']->merge($aChild);
+            } else {
+                // Descendant has no such child yet
+                $this->addChild($aChild);
             }
         }
     }

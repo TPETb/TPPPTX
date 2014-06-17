@@ -95,9 +95,7 @@ class TextParagraphProperties extends ComplexAbstract
             'hangingPunct' => null,
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
-
-//        d($this);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -157,22 +155,47 @@ class TextParagraphProperties extends ComplexAbstract
                 $style .= ' text-align:' . $this->algn->toCss() . ';';
             if ($this->fontAlgn->isPresent())
                 $style .= ' vertical-align:' . $this->fontAlgn->toCss() . ';';
-            if (count($tmp = $this->children('lnSpc')))
+            if (count($tmp = $this->getChildren('lnSpc')))
                 $style .= ' line-height:' . $tmp[0]->toCss() . ';';
-            if (count($tmp = $this->children('spcBef')))
+            if (count($tmp = $this->getChildren('spcBef')))
                 $style .= ' margin-top:' . $tmp[0]->toCss() . ';';
-            if (count($tmp = $this->children('spcAft')))
+            if (count($tmp = $this->getChildren('spcAft')))
                 $style .= ' margin-bottom:' . $tmp[0]->toCss() . ';';
-            if (count($tmp = $this->children('defRPr')))
+            if (count($tmp = $this->getChildren('defRPr')))
                 $style .= $tmp[0]->toCssInline();
         } else if ($section == 'bullet') {
             // Styles of bullet for this paragraph
-            if (count($tmp = $this->children('buClr')))
+            if (count($tmp = $this->getChildren('buClr')))
                 $style .= ' color:' . $tmp[0]->toCss() . ';';
-            if (count($tmp = $this->children('buSzPct buSzPts')))
+            if (count($tmp = $this->getChildren('buSzPct buSzPts')))
                 $style .= ' font-size:' . $tmp[0]->toCss() . ';';
         }
 
         return $style;
+    }
+
+
+    public function merge(ComplexAbstract $ancestor)
+    {
+        foreach ($this->getAttributes() as $key => $value) {
+            if (($value instanceof SimpleAbstract && !$value->isPresent())
+                || $value == null
+            ) {
+                $this->setAttribute($key, $ancestor->$key);
+            }
+        }
+
+        // Loop ancestor children
+        foreach ($ancestor->getChildren() as $key => $aChild) {
+            if (in_array($aChild->tagName, array('buNone', 'buChar', 'buBlip', 'buAutoNum')))
+                continue; // do not inherit bullet, only style of it
+            if ($this->child($aChild->tagName)) {
+                // Descendant has such child too
+                $this->children[$aChild->tagName . '0']->merge($aChild);
+            } else {
+                // Descendant has no such child yet
+                $this->addChild($aChild);
+            }
+        }
     }
 } 

@@ -38,7 +38,7 @@ class CommonSlideData extends ComplexAbstract
             'name' => '',
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

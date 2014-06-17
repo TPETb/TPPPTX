@@ -77,7 +77,7 @@ class SlideLayout extends RootAbstract
             'showMasterPhAnim' => 'true',
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -98,32 +98,6 @@ class SlideLayout extends RootAbstract
         }
 
         return $this;
-    }
-
-
-    /**
-     * @param \DOMDocument $dom
-     * @return \DOMElement
-     */
-    public function toHtmlDom(\DOMDocument $dom)
-    {
-        $slide = $dom->createElement('div');
-        $slide->setAttribute('class', 'slide');
-        $slide->setAttribute('style', ' position: relative;' . $this->presentation->children('sldSz')[0]->toCssInline());
-
-        $slide->appendChild($this->children('cSld')[0]->toHtmlDom($dom));
-
-        return $slide;
-    }
-
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public function findPlaceholder($id)
-    {
-        return $this->children('cSld')[0]->children('spTree')[0]->findPlaceholder($id);
     }
 
 

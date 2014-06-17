@@ -73,7 +73,7 @@ class Slide extends RootAbstract
             'showMasterPhAnim' => 'true',
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -105,18 +105,14 @@ class Slide extends RootAbstract
     {
         $slide = $dom->createElement('div');
         $slide->setAttribute('class', 'slide');
-        $slide->setAttribute('style', ' position: relative;' . $this->presentation->children('sldSz')[0]->toCssInline());
+        $slide->setAttribute('style', ' position: relative;' . $this->presentation->getChildren('sldSz')[0]->toCssInline());
 
-        // Slide layout shapes
         if ($this->layout) {
-            $mergedCSld = $this->layout->child('cSld');
-            $mergedCSld->merge($this->child('cSld'));
-
-            $slide->appendChild($mergedCSld->toHtmlDom($dom));
-        } else {
-            // Slide shapes
-            $slide->appendChild($this->child('cSld')->toHtmlDom($dom));
+            // If there is Layout, merge Common data from it to slide
+            $this->child('cSld')->merge($this->layout->child('cSld'));
         }
+
+        $slide->appendChild($this->child('cSld')->toHtmlDom($dom));
 
         return $slide;
     }

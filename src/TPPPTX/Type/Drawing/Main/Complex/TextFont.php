@@ -35,7 +35,7 @@ class TextFont extends ComplexAbstract
             'charset' => 1,
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

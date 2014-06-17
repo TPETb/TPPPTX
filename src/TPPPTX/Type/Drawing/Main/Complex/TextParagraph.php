@@ -10,6 +10,7 @@ namespace TPPPTX\Type\Drawing\Main\Complex;
 
 
 use TPPPTX\Type\ComplexAbstract;
+use TPPPTX\Type\Presentation\Main\Complex\SlideLayout;
 
 /**
  * Class TextParagraph
@@ -45,110 +46,93 @@ class TextParagraph extends ComplexAbstract
 
     public function toHtmlDom(\DOMDocument $dom)
     {
-        if (!count($this->children('r br'))) {
-            return false;
-        }
-
         $container = $dom->createElement('p');
 
         $lvl = 1;
-        if ($tmp = array_shift($this->children('pPr'))) {
+        if ($tmp = array_shift($this->getChildren('pPr'))) {
             $lvl += $tmp->lvl->get();
         }
 
         $container->setAttribute('class', 'lvl-' . $lvl);
-        /**
-         * Compose styles:
-         * - Pick from presentation default style
-         * - If Master can be picked, pick from there
-         * - If parent Shape has parent placeholder - pick from Placeholder->txBody->lstStyle of it
-         * - Pick from parent Shape->txBody->lstStyle
-         * - Pick from own pPr
-         */
 
-        $styleChain = array();
 
-//        // Default styles from presentation
-//        if ($tmp = $this->root->getPresentation()->child('defaultTextStyle')) {
-//            if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
-//                $styleChain[] = clone $tmp;
-//            }
-//        }
-//
-//        // Styles from master
-//        if ($this->parent->parent->isPlaceholder()) {
-//            if (stristr($this->parent->parent->getPlaceholderId(), 'ctrTitle')
-//                || stristr($this->parent->parent->getPlaceholderId(), 'title')
-//            ) {
-//                $pType = 'title';
-//            } else {
-//                $pType = 'body';
-//            }
-//        } else {
-//            $pType = 'body';
-//        }
-//        if ($tmp = $this->root->getMaster()->child('txStyles')) {
-//            if ($tmp = $tmp->child($pType . 'Style')) {
-//                if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
-//                    $styleChain[] = clone $tmp;
-//                }
-//            }
-//        }
-//
-//        // Styles from placeholder lstStyle
-//        if ($this->parent->parent->isPlaceholder()) {
-//            if ($tmp = $this->parent->parent->getPlaceholder()->child('txBody')) {
-//                if ($tmp = $tmp->child('lstStyle')) {
-//                    if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
-//                        $styleChain[] = clone $tmp;
-//                    }
-//                }
-//            }
-//        }
-//
-//        // Styles from own shape
-//        if ($tmp = $this->parent->child('lstStyle')) {
-//            if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
-//                $styleChain[] = clone $tmp;
-//            }
-//        }
-//
-//        // Own styles
-//        if ($tmp = $this->child('pPr')) {
-//            $styleChain[] = clone $tmp;
-//        }
-
-        for ($i = 0; $i < count($styleChain) - 1; $i++) {
-            $styleChain[$i]->merge($styleChain[$i + 1]);
+        // Go on properties hunting!
+        if (!$this->child('pPr')) {
+            $pPr = new TextParagraphProperties('pPr', array(), array(
+                'parent' => $this,
+                'root' => $this->root,
+            ));
+            $this->addChild($pPr);
+        }
+        // Styles from own Shape->lstStyle
+        if ($tmp = $this->parent->child('lstStyle')) {
+            if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
+                $this->children['pPr0']->merge($tmp);
+            }
+        }
+        // Styles from master
+        if ($this->parent->parent->isPlaceholder()) {
+            if (stristr($this->parent->parent->getPlaceholderType(), 'ctrTitle')
+                || stristr($this->parent->parent->getPlaceholderType(), 'title')
+            ) {
+                $pType = 'title';
+            } else {
+                $pType = 'body';
+            }
+        } else {
+            // Shapes that originate from Layout and are not placeholder should inherit "other" style
+            // @todo check if this is true
+            if ($this->root instanceof SlideLayout) {
+                $pType = 'other';
+            } else {
+                $pType = 'body';
+            }
+        }
+        if ($tmp = $this->root->getMaster()->child('txStyles')) {
+            if ($tmp = $tmp->child($pType . 'Style')) {
+                if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
+                    $this->children['pPr0']->merge($tmp);
+                }
+            }
+        }
+        // Default styles from presentation
+        if ($tmp = $this->root->getPresentation()->child('defaultTextStyle')) {
+            if ($tmp = $tmp->child('lvl' . $lvl . 'pPr')) {
+                $this->children['pPr0']->merge($tmp);
+            }
         }
 
-        if (count($styleChain)) {
-            $container->setAttribute('style', $styleChain[count($styleChain) - 2]->toCssInline('p'));
-        }
+        // Attach styles
+        $container->setAttribute('style', $this->child('pPr')->toCssInline('p'));
 
         unset($styleChain);
 
         // Add bullet
-        if ($tmp = $this->child('pPr')) {
-            if ($tmp = $tmp->child('buChar')) {
-                $bullet = $dom->createElement('span');
-                $bullet->setAttribute('class', 'bullet');
-                $buStyle = $this->child('pPr')->toCssInline('bullet');
-                // Check if this is correct to set bullet width equal to indent
-                $buStyle .= ' display:inline-block; float:left; width:' . (-$this->child('pPr')->indent->toCss()) . 'pt;';
-                $bullet->setAttribute('style', $buStyle);
-                $bullet->nodeValue = $tmp->char;
-                $container->appendChild($bullet);
+        if (count($this->getChildren('r br')) && $tmp = $this->child('pPr')) {
+            if (!$tmp->child('buNone')) {
+                if ($tmp = $tmp->child('buChar')) {
+                    $bullet = $dom->createElement('span');
+                    $bullet->setAttribute('class', 'bullet');
+                    $buStyle = $this->child('pPr')->toCssInline('bullet');
+                    // Check if this is correct to set bullet width equal to indent
+                    $buStyle .= ' display:inline-block; float:left; width:' . (-$this->child('pPr')->indent->toCss()) . 'pt;';
+                    $bullet->setAttribute('style', $buStyle);
+                    $bullet->nodeValue = $tmp->char;
+                    $container->appendChild($bullet);
+                }
             }
         }
 
         // Add text and breaks
-        foreach ($this->children('r br') as $child) {
+        foreach ($this->getChildren('r br') as $child) {
             $container->appendChild($child->toHtmlDom($dom));
+        }
+
+        if (!count($this->getChildren('r br'))) {
+            $container->nodeValue = '&nbsp;';
         }
 
         return $container;
     }
 
-
-} 
+}

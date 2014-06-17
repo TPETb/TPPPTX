@@ -69,7 +69,7 @@ class HslColor extends ComplexAbstract
             'lum' => new Percentage(),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

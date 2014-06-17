@@ -14,7 +14,7 @@ use TPPPTX\Type\Drawing\Main\Simple\Angle;
 
 /**
  * Class Transform2D
- * <xsd:complexType name="CT_GroupTransform2D">
+ * <xsd:complexType name="CT_Transform2D">
  *     <xsd:sequence>
  *         <xsd:element name="off" type="CT_Point2D" minOccurs="0" maxOccurs="1"/>
  *         <xsd:element name="ext" type="CT_PositiveSize2D" minOccurs="0" maxOccurs="1"/>
@@ -56,18 +56,42 @@ class Transform2D extends ComplexAbstract
     /**
      * @return string
      */
-    public function toCss()
+    public function toCssInline()
     {
         $style = ' position: absolute;';
 
-        if ($tmp = $this->children('off')) {
-            $style .= ' left:' . $tmp[0]->x->toCss() . ';';
-            $style .= ' top:' . $tmp[0]->y->toCss() . ';';
+        if ($tmp = $this->parent->parent->parent->child('grpSpPr')) {
+            if ($tmp = $tmp->child('xfrm')) {
+                if ($tmp->child('chExt') && $tmp->child('ext')) {
+                    if ($tmp->child('chExt')->cx->get() > 0 && $tmp->child('ext')->cx->get() > 0) {
+                        $zoom = $tmp->child('ext')->cx->get() / $tmp->child('chExt')->cx->get();
+                    }
+                }
+                if ($tmp->child('chOff')) {
+                    $chOffX = $tmp->child('chOff')->x->get();
+                    $chOffY = $tmp->child('chOff')->y->get();
+                }
+            }
         }
 
-        if ($tmp = $this->children('ext')) {
-            $style .= ' width:' . $tmp[0]->cx->toCss() . ';';
-            $style .= ' height:' . $tmp[0]->cy->toCss() . ';';
+        if ($tmp = $this->getChildren('ext')) {
+            if (isset($zoom)) {
+                $style .= ' width:' . $tmp[0]->cx->toCss() * $zoom . 'pt;';
+                $style .= ' height:' . $tmp[0]->cy->toCss() * $zoom. 'pt;';
+            } else {
+                $style .= ' width:' . $tmp[0]->cx->toCss() . ';';
+                $style .= ' height:' . $tmp[0]->cy->toCss() . ';';
+            }
+        }
+
+        if ($tmp = $this->getChildren('off')) {
+            if (isset($chOffX)) {
+                $style .= ' left:' . ($tmp[0]->x->get() - $chOffX) / 12700 . 'pt;';
+                $style .= ' top:' . ($tmp[0]->y->get() - $chOffY) / 12700 . 'pt;';
+            } else {
+                $style .= ' left:' . $tmp[0]->x->toCss() . ';';
+                $style .= ' top:' . $tmp[0]->y->toCss() . ';';
+            }
         }
 
         if ($this->rot->isPresent()) {

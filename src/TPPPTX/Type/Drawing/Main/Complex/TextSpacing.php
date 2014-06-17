@@ -33,9 +33,9 @@ class TextSpacing extends ComplexAbstract
 
     public function toCss()
     {
-        if (count($lnSpc = $this->children('spcPct'))) {
+        if (count($lnSpc = $this->getChildren('spcPct'))) {
             return $lnSpc[0]->val->toCss();
-        } else if (count($lnSpc = $this->children('CT_TextSpacingPoint'))) {
+        } else if (count($lnSpc = $this->getChildren('CT_TextSpacingPoint'))) {
             return $lnSpc[0]->val->toCss();
         }
     }

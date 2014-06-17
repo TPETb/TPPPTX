@@ -86,11 +86,12 @@ class GroupShapeProperties extends ComplexAbstract
      *
      * @todo add support for fills
      */
-    public function toCss()
+    public function toCssInline()
     {
         $style = '';
-        if ($xfrm = $this->children('xfrm')) {
-            $style .= $xfrm[0]->toCss();
+
+        if ($tmp = $this->child('xfrm')) {
+            $style .= $tmp->toCssInline();
         }
 
         return $style;

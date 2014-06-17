@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: alex
- * Date: 6/12/14
- * Time: 11:22 PM
+ * Date: 6/17/14
+ * Time: 5:40 AM
  */
 
 namespace TPPPTX\Type\Presentation\Main\Complex;
@@ -12,11 +12,10 @@ namespace TPPPTX\Type\Presentation\Main\Complex;
 use TPPPTX\Type\ComplexAbstract;
 
 /**
- * Class Picture
- * <xsd:complexType name="CT_Picture">
+ * Class Connector
+ * <xsd:complexType name="CT_Connector">
  *     <xsd:sequence>
- *         <xsd:element name="nvPicPr" type="CT_PictureNonVisual" minOccurs="1" maxOccurs="1"/>
- *         <xsd:element name="blipFill" type="a:CT_BlipFillProperties" minOccurs="1" maxOccurs="1"/>
+ *         <xsd:element name="nvCxnSpPr" type="CT_ConnectorNonVisual" minOccurs="1" maxOccurs="1"/>
  *         <xsd:element name="spPr" type="a:CT_ShapeProperties" minOccurs="1" maxOccurs="1"/>
  *         <xsd:element name="style" type="a:CT_ShapeStyle" minOccurs="0" maxOccurs="1"/>
  *         <xsd:element name="extLst" type="CT_ExtensionListModify" minOccurs="0" maxOccurs="1"/>
@@ -24,14 +23,12 @@ use TPPPTX\Type\ComplexAbstract;
  * </xsd:complexType>
  * @package TPPPTX\Type\Presentation\Main\Complex
  */
-class Picture extends ComplexAbstract
-{
+class Connector extends ComplexAbstract{
     /**
      * @var array
      */
     protected $sequence = array(
-        'nvPicPr' => 'Presentation\\Main\\Complex\\PictureNonVisual',
-        'blipFill' => 'Drawing\\Main\\Complex\\BlipFillProperties',
+        'nvCxnSpPr' => 'Presentation\\Main\\Complex\\ConnectorNonVisual',
         'spPr' => 'Drawing\\Main\\Complex\\ShapeProperties',
         'style' => 'Drawing\\Main\\Complex\\ShapeStyle',
 //        'extLst' => 'Presentation\\Main\\Complex\\ExtensionListModify',
@@ -40,15 +37,9 @@ class Picture extends ComplexAbstract
 
     public function toHtmlDom(\DOMDocument $dom)
     {
-        $container = parent::toHtmlDom($dom, array(
-            'tagName' => 'img',
-            'noChildren' => true,
-        ));
-
-        $container->setAttribute('src', $this->child('blipFill')->child('blip')->getFilepath());
+        $container = parent::toHtmlDom($dom);
+        $container->setAttribute('class', 'connector');
 
         return $container;
     }
-
-
-} 
+}

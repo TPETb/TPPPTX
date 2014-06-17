@@ -32,7 +32,6 @@ namespace TPPPTX\Type\Drawing\Main\Complex;
  * </xsd:group>
  * @package TPPPTX\Type\Drawing\Main\Complex
  */
-class SolidColorFillProperties extends Color
+class SolidColorFillProperties extends Color //!!! Attention !!!! already picks everything from Color!
 {
-
-} 
+}

@@ -115,7 +115,7 @@ class SlideMaster extends RootAbstract
 
     public function getSchemeColor($name)
     {
-        return $this->theme->getColor($this->children('clrMap')[0]->getAttribute($name));
+        return $this->theme->getColor($this->getChildren('clrMap')[0]->getAttribute($name));
     }
 
 

@@ -34,7 +34,7 @@ class PositiveSize2D extends ComplexAbstract
             'cy' => new PositiveCoordinate(0),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 } 

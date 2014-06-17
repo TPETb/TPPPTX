@@ -50,7 +50,7 @@ class TextListStyle extends ComplexAbstract {
     {
         $style = $dom->createElement('style');
 
-        foreach ($this->children() as $child) {
+        foreach ($this->getChildren() as $child) {
             if ($child->tagName == 'defPPr') {
                 $style->nodeValue .= $child->toCssBlock('p');
             } else if (preg_match('/lvl([1-9])pPr/', $child->tagName, $matches)) {

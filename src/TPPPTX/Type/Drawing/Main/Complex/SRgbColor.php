@@ -68,7 +68,7 @@ class SRgbColor extends ComplexAbstract
             'val' => new HexColorRGB()
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

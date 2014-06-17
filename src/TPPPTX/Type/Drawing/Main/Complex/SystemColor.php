@@ -66,7 +66,7 @@ class SystemColor extends ComplexAbstract
             'lastClr' => new HexColorRGB(),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

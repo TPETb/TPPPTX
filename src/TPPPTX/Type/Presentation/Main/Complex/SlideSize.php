@@ -38,7 +38,7 @@ class SlideSize extends ComplexAbstract
             'type' => new SlideSizeType('custom'),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

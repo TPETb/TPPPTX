@@ -73,7 +73,7 @@ class ScRgbColor extends ComplexAbstract
             'b' => new Percentage(),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 

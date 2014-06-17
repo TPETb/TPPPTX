@@ -60,12 +60,12 @@ class OfficeStyleSheet extends RootAbstract
                 break;
         }
 
-        return $this->children('themeElements')[0]->children('fontScheme')[0]->children($name)[0]->children('latin')[0]->toCss();
+        return $this->getChildren('themeElements')[0]->getChildren('fontScheme')[0]->getChildren($name)[0]->getChildren('latin')[0]->toCss();
     }
 
 
     function getColor($name)
     {
-        return $this->children('themeElements')[0]->children('clrScheme')[0]->children($name)[0]->toCss();
+        return $this->getChildren('themeElements')[0]->getChildren('clrScheme')[0]->getChildren($name)[0]->toCss();
     }
 } 

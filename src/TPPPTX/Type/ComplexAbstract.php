@@ -165,7 +165,7 @@ abstract class ComplexAbstract
      * @param string $tagName
      * @return ComplexAbstract[]
      */
-    public function children($tagName = '')
+    public function getChildren($tagName = '')
     {
         $result = array();
 
@@ -173,7 +173,7 @@ abstract class ComplexAbstract
 
         foreach ($this->children as &$child) {
             if (!$tagName || in_array($child->tagName, $tagNames)) {
-                $result[] = $child;
+                $result[] =& $child;
             }
         }
 
@@ -187,16 +187,7 @@ abstract class ComplexAbstract
      */
     public function child($tagName)
     {
-        return array_shift($this->children($tagName));
-    }
-
-
-    /**
-     * @param \TPPPTX\Type\ComplexAbstract[] $children
-     */
-    public function setChildren($children)
-    {
-        $this->children = $children;
+        return array_shift($this->getChildren($tagName));
     }
 
 
@@ -205,7 +196,7 @@ abstract class ComplexAbstract
      */
     public function addChild(ComplexAbstract $child)
     {
-        $this->children[] = & $child;
+        $this->children[$child->tagName . count($this->getChildren($child->tagName))] = $child;
     }
 
 
@@ -284,51 +275,60 @@ abstract class ComplexAbstract
 
 
     /**
-     * Presence of this method in abstract class allows to check execution results instead of checking of method
-     * presence in child classes while not all classes are implemented.
-     * As all classes implemented this method can be removed.
      * @param \DOMDocument $dom
-     * @return bool
+     * @param array $options
+     * @return \DOMElement
      */
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
-        return false;
-    }
+        $container = $dom->createElement(isset($options['tagName']) ? $options['tagName'] : 'div');
+        if (isset($options['class'])) {
+            $container->setAttribute('class', $options['class']);
+        }
 
-
-    public function merge(ComplexAbstract $successor)
-    {
-        $this->nodeValue = $successor->nodeValue;
-        $this->root = $successor->root;
-        $this->parent = $successor->parent;
-
-        foreach ($successor->getAttributes() as $key => $value) {
-            if (($value instanceof SimpleAbstract && $value->isPresent())
-                || $value !== null
-            ) {
-                $this->setAttribute($key, $value);
+        $style = '';
+        foreach ($this->getChildren() as $child) {
+            if (method_exists($child, 'toCssInline')) {
+                $style .= $child->toCssInline();
+            } else if (!isset($options['noChildren']) && $tmp = $child->toHtmlDom($dom)) {
+                // todo check if element can both convert to inline css and html
+                $container->appendChild($tmp);
             }
         }
 
-        foreach ($successor->children() as $sChild) {
-            $matched = false;
-            // If there is only one, it replaces the parental
-            if (count($successor->children($sChild->tagName)) == 1) {
-                foreach ($this->children as &$pChild) {
-                    if ($pChild->tagName == $sChild->tagName) {
-                        $pChild->merge($sChild);
-                        $matched = true;
-                        break;
-                    }
-                }
-            } else {
-                // There are more then one of such element so they should be appended
-                // todo check elements maximum allowance rather then actual count
-                throw new \Exception('ComplexAbstract failed to resolve merge of ' . get_called_class() . ' because there are many children of type ' . $sChild->tagName);
+        $container->setAttribute('style', $style);
+
+        $container->setAttribute('data-class', get_called_class());
+
+        return $container;
+    }
+
+
+    public function merge(ComplexAbstract $ancestor)
+    {
+        foreach ($this->getAttributes() as $key => $value) {
+            if (($value instanceof SimpleAbstract && !$value->isPresent())
+                || $value == null
+            ) {
+                $this->setAttribute($key, $ancestor->$key);
+            }
+        }
+
+        // Loop ancestor children
+        foreach ($ancestor->getChildren() as $key => $aChild) {
+            // Ancestor or Descendant has many of such children
+            if (count($ancestor->getChildren($aChild->tagName)) > 1
+                || count($this->getChildren($aChild->tagName)) > 1
+            ) {
+                throw new \Exception('ComplexAbstract failed to resolve merge of ' . get_called_class() . ' because there are many children of type ' . $aChild->tagName);
             }
 
-            if (!$matched) {
-                $this->addChild($sChild);
+            if ($this->child($aChild->tagName)) {
+                // Descendant has such child too
+                $this->children[$aChild->tagName . '0']->merge($aChild);
+            } else {
+                // Descendant has no such child yet
+                $this->addChild($aChild);
             }
         }
     }

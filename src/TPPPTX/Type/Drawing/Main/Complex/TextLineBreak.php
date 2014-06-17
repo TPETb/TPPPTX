@@ -30,7 +30,8 @@ class TextLineBreak extends ComplexAbstract
     public function toHtmlDom(\DOMDocument $dom)
     {
         $container = $dom->createElement('br');
-        if ($tmp = array_shift($this->children('rPr'))) {
+
+        if ($tmp = array_shift($this->getChildren('rPr'))) {
             $container->setAttribute('style', $tmp->toCssInline());
         }
 

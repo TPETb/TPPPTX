@@ -26,6 +26,6 @@ class TextSpacingPercent extends ComplexAbstract {
             'val' => new TextSpacingPercentOrPercentString()
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 }

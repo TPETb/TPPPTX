@@ -115,7 +115,7 @@ class Presentation extends RootAbstract
             'conformance' => new ConformanceClass(),
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 
 
@@ -129,7 +129,7 @@ class Presentation extends RootAbstract
         $result->setAttribute('class', 'presentation-container');
 
         // Get default styles
-//        if ($defaultTextStyle = array_shift($this->children('defaultTextStyle'))) {
+//        if ($defaultTextStyle = array_shift($this->getChildren('defaultTextStyle'))) {
 //            /** @var \TPPPTX\Type\Drawing\Main\Complex\TextListStyle $defaultTextStyle */
 //            if ($contents = $defaultTextStyle->toHtmlDom($dom)) {
 //                $result->appendChild($contents);
@@ -137,7 +137,7 @@ class Presentation extends RootAbstract
 //        }
 
         // Slides!
-        foreach ($this->children('sldIdLst')[0]->children() as $slideId) {
+        foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $slideId) {
             // Create a clone of presentation for every slide so that it can be changed and then erased to clean memory
             // @todo rework this ro actual cloning instead of file reparsing
             $presentation = new Presentation();

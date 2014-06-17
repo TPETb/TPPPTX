@@ -25,6 +25,6 @@ class TextSpacingPoint extends ComplexAbstract {
             'val' => new \TPPPTX\Type\Drawing\Main\Simple\TextSpacingPoint()
         );
 
-        parent::__construct($tagName = '', $attributes, $options);
+        parent::__construct($tagName, $attributes, $options);
     }
 }

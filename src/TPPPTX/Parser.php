@@ -133,7 +133,7 @@ class Parser
 
         // Let's add some debug
         $css = $dom->createElement('style');
-        $css->nodeValue = 'div {border: 1px solid red;} .slide {margin: 20px;}';
+        $css->nodeValue = '.slide {border: 1px solid red;} .slide {margin: 20px; overflow: hidden;}';
         $head->appendChild($css);
 
 //        $css = $dom->createElement('link');
