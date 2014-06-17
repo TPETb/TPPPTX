@@ -60,12 +60,12 @@ class Transform2D extends ComplexAbstract
     {
         $style = ' position: absolute;';
 
-        if ($tmp = $this->getChildren('off')) {
+        if ($tmp = $this->children('off')) {
             $style .= ' left:' . $tmp[0]->x->toCss() . ';';
             $style .= ' top:' . $tmp[0]->y->toCss() . ';';
         }
 
-        if ($tmp = $this->getChildren('ext')) {
+        if ($tmp = $this->children('ext')) {
             $style .= ' width:' . $tmp[0]->cx->toCss() . ';';
             $style .= ' height:' . $tmp[0]->cy->toCss() . ';';
         }

@@ -30,4 +30,8 @@ use TPPPTX\Type\SimpleAbstract;
  */
 class Coordinate32 extends SimpleAbstract
 {
+    public function toCss()
+    {
+        return round($this->value / 12700) . 'pt';
+    }
 }

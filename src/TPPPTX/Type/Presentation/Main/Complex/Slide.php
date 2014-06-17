@@ -41,6 +41,9 @@ use TPPPTX\Type\RootAbstract;
 class Slide extends RootAbstract
 {
 
+    /**
+     * @var null
+     */
     protected $layout = null;
 
 
@@ -74,6 +77,11 @@ class Slide extends RootAbstract
     }
 
 
+    /**
+     * @param \DOMNode $node
+     * @param array $options
+     * @return $this
+     */
     public function fromDom(\DOMNode $node, $options = array())
     {
         parent::fromDom($node, $options);
@@ -89,19 +97,26 @@ class Slide extends RootAbstract
     }
 
 
+    /**
+     * @param \DOMDocument $dom
+     * @return \DOMElement
+     */
     public function toHtmlDom(\DOMDocument $dom)
     {
         $slide = $dom->createElement('div');
         $slide->setAttribute('class', 'slide');
-        $slide->setAttribute('style', ' position: relative;' . $this->presentation->getChildren('sldSz')[0]->toCssInline());
+        $slide->setAttribute('style', ' position: relative;' . $this->presentation->children('sldSz')[0]->toCssInline());
 
         // Slide layout shapes
         if ($this->layout) {
-            $slide->appendChild($this->layout->getChildren('cSld')[0]->toHtmlDom($dom));
-        }
+            $mergedCSld = $this->layout->child('cSld');
+            $mergedCSld->merge($this->child('cSld'));
 
-        // Slide shapes
-        $slide->appendChild($this->getChildren('cSld')[0]->toHtmlDom($dom));
+            $slide->appendChild($mergedCSld->toHtmlDom($dom));
+        } else {
+            // Slide shapes
+            $slide->appendChild($this->child('cSld')->toHtmlDom($dom));
+        }
 
         return $slide;
     }
@@ -122,5 +137,23 @@ class Slide extends RootAbstract
     public function getLayout()
     {
         return $this->layout;
+    }
+
+
+    /**
+     * @return SlideMaster
+     */
+    public function getMaster()
+    {
+        return $this->getLayout()->getMaster();
+    }
+
+
+    /**
+     * @return \TPPPTX\Type\Drawing\Main\Complex\OfficeStyleSheet
+     */
+    public function  getTheme()
+    {
+        return $this->getMaster()->getTheme();
     }
 }

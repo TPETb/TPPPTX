@@ -119,7 +119,7 @@ class Parser
     {
         $presentation = new Presentation('presentation');
         $presentation->load($this);
-        
+
         $dom = new \DOMDocument();
         $dom->formatOutput = true;
         $html = $dom->createElement('html');

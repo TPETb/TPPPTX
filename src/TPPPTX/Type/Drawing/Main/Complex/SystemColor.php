@@ -57,7 +57,8 @@ use TPPPTX\Type\Shared\CommonSimpleTypes\Simple\HexColorRGB;
  * </xsd:group>
  * @package TPPPTX\Type\Drawing\Main\Complex
  */
-class SystemColor extends ComplexAbstract {
+class SystemColor extends ComplexAbstract
+{
     function __construct($tagName = '', $attributes = array(), $options = array())
     {
         $this->attributes = array(
@@ -66,6 +67,12 @@ class SystemColor extends ComplexAbstract {
         );
 
         parent::__construct($tagName = '', $attributes, $options);
+    }
+
+
+    public function toCss()
+    {
+        return '#' . $this->lastClr;
     }
 
 } 

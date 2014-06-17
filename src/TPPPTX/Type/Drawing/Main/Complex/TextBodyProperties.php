@@ -86,6 +86,14 @@ class TextBodyProperties extends ComplexAbstract
     );
 
 
+    protected $defaults = array(
+        'lIns' => 91440,
+        'tIns' => 45720,
+        'rIns' => 91440,
+        'bIns' => 45720,
+    );
+
+
     function __construct($tagName = '', $attributes = array(), $options = array())
     {
         $this->attributes = array(
@@ -114,4 +122,18 @@ class TextBodyProperties extends ComplexAbstract
     }
 
 
+    public function toCssInline()
+    {
+        $style = '';
+        $tmp = $this->lIns->isPresent() ? $this->lIns->toCss() : ($this->defaults['lIns'] / 12700 . 'pt');
+        $style .= " margin-left:{$tmp};";
+        $tmp = $this->rIns->isPresent() ? $this->rIns->toCss() : ($this->defaults['rIns'] / 12700 . 'pt');
+        $style .= " margin-right:{$tmp};";
+        $tmp = $this->tIns->isPresent() ? $this->tIns->toCss() : ($this->defaults['tIns'] / 12700 . 'pt');
+        $style .= " margin-top:{$tmp};";
+        $tmp = $this->bIns->isPresent() ? $this->bIns->toCss() : ($this->defaults['bIns'] / 12700 . 'pt');
+        $style .= " margin-bottom:{$tmp};";
+
+        return $style;
+    }
 } 

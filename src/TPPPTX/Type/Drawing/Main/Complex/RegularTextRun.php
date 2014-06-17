@@ -32,11 +32,11 @@ class RegularTextRun extends ComplexAbstract
     public function toHtmlDom(\DOMDocument $dom)
     {
         $container = $dom->createElement('span');
-        if ($tmp = array_shift($this->getChildren('rPr'))) {
+        if ($tmp = array_shift($this->children('rPr'))) {
             $container->setAttribute('style', $tmp->toCssInline());
         }
 
-        $container->nodeValue = htmlspecialchars($this->getChildren('t')[0]->nodeValue);
+        $container->nodeValue = htmlspecialchars($this->children('t')[0]->nodeValue);
 
         return $container;
     }

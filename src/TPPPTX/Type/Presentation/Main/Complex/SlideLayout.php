@@ -43,6 +43,24 @@ use TPPPTX\Type\RootAbstract;
  */
 class SlideLayout extends RootAbstract
 {
+
+    /**
+     * @var
+     */
+    protected $master;
+
+    /**
+     * @var array
+     */
+    protected $sequence = array(
+        'cSld' => 'Presentation\\Main\\Complex\\CommonSlideData',
+//        'clrMapOvr' => 'Drawing\\Main\\Complex\\ColorMappingOverride',
+//         *         <xsd:group ref="EG_ChildSlide" minOccurs="0" maxOccurs="1"/>
+//         *         <xsd:element name="transition" type="CT_SlideTransition" minOccurs="0" maxOccurs="1"/>
+//         *         <xsd:element name="timing" type="CT_SlideTiming" minOccurs="0" maxOccurs="1"/>
+//         *         <xsd:element name="extLst" type="CT_ExtensionListModify" minOccurs="0" maxOccurs="1"/>
+    );
+
     /**
      * @param $tagName
      * @param array $attributes
@@ -64,32 +82,75 @@ class SlideLayout extends RootAbstract
 
 
     /**
-     * @var array
+     * @param \DOMNode $node
+     * @param array $options
+     * @return $this
      */
-    protected $sequence = array(
-        'cSld' => 'Presentation\\Main\\Complex\\CommonSlideData',
-//        'clrMapOvr' => 'Drawing\\Main\\Complex\\ColorMappingOverride',
-//         *         <xsd:group ref="EG_ChildSlide" minOccurs="0" maxOccurs="1"/>
-//         *         <xsd:element name="transition" type="CT_SlideTransition" minOccurs="0" maxOccurs="1"/>
-//         *         <xsd:element name="timing" type="CT_SlideTiming" minOccurs="0" maxOccurs="1"/>
-//         *         <xsd:element name="extLst" type="CT_ExtensionListModify" minOccurs="0" maxOccurs="1"/>
-    );
+    public function fromDom(\DOMNode $node, $options = array())
+    {
+        parent::fromDom($node, $options);
+
+        // Find layout in relations and load it
+        foreach ($this->relations as $rel) {
+            if ($rel['type'] == 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster') {
+                $this->master = $this->presentation->getByFilepath($rel['target']);
+            }
+        }
+
+        return $this;
+    }
 
 
+    /**
+     * @param \DOMDocument $dom
+     * @return \DOMElement
+     */
     public function toHtmlDom(\DOMDocument $dom)
     {
         $slide = $dom->createElement('div');
         $slide->setAttribute('class', 'slide');
-        $slide->setAttribute('style', ' position: relative;' . $this->presentation->getChildren('sldSz')[0]->toCssInline());
+        $slide->setAttribute('style', ' position: relative;' . $this->presentation->children('sldSz')[0]->toCssInline());
 
-        $slide->appendChild($this->getChildren('cSld')[0]->toHtmlDom($dom));
+        $slide->appendChild($this->children('cSld')[0]->toHtmlDom($dom));
 
         return $slide;
     }
 
 
+    /**
+     * @param $id
+     * @return mixed
+     */
     public function findPlaceholder($id)
     {
-        return $this->getChildren('cSld')[0]->getChildren('spTree')[0]->findPlaceholder($id);
+        return $this->children('cSld')[0]->children('spTree')[0]->findPlaceholder($id);
     }
+
+
+    /**
+     * @param SlideMaster $master
+     */
+    public function setMaster($master)
+    {
+        $this->master = $master;
+    }
+
+
+    /**
+     * @return SlideMaster
+     */
+    public function getMaster()
+    {
+        return $this->master;
+    }
+
+
+    /**
+     * @return \TPPPTX\Type\Drawing\Main\Complex\OfficeStyleSheet
+     */
+    public function getTheme()
+    {
+        return $this->getMaster()->getTheme();
+    }
+
 } 

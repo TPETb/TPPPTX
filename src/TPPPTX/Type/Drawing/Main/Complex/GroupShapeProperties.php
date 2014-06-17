@@ -89,7 +89,7 @@ class GroupShapeProperties extends ComplexAbstract
     public function toCss()
     {
         $style = '';
-        if ($xfrm = $this->getChildren('xfrm')) {
+        if ($xfrm = $this->children('xfrm')) {
             $style .= $xfrm[0]->toCss();
         }
 

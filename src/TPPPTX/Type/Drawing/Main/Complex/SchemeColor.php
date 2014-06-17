@@ -68,7 +68,7 @@ class SchemeColor extends ComplexAbstract {
 
     public function toCss()
     {
-        return 'red/*' . $this->val->get() . '*/';
+        return $this->root->getMaster()->getSchemeColor($this->val->get());
     }
 
 } 

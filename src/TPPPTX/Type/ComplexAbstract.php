@@ -75,6 +75,16 @@ abstract class ComplexAbstract
     }
 
 
+    function __destruct()
+    {
+        foreach ($this->children as $key => $child) {
+            $child->__destruct();
+            unset($this->children[$key]);
+        }
+
+    }
+
+
     /**
      * @param $attributes
      * @return $this
@@ -106,7 +116,6 @@ abstract class ComplexAbstract
         }
 
         if ($this->attributes[$name] instanceof SimpleAbstract) {
-//            return $this->attributes[$name]->get();
             return $this->attributes[$name];
         } else if ($this->attributes[$name] === 'true') {
             return true;
@@ -130,7 +139,11 @@ abstract class ComplexAbstract
             throw new \Exception("Unknown attribute {$name} passed to class " . get_called_class());
         }
         if ($this->attributes[$name] instanceof SimpleAbstract) {
-            $this->attributes[$name]->set($value);
+            if ($value instanceof SimpleAbstract) {
+                $this->attributes[$name] = $value;
+            } else {
+                $this->attributes[$name]->set($value);
+            }
         } else {
             $this->attributes[$name] = $value;
         }
@@ -140,16 +153,25 @@ abstract class ComplexAbstract
 
 
     /**
+     * @return array
+     */
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+
+    /**
      * @param string $tagName
      * @return ComplexAbstract[]
      */
-    public function getChildren($tagName = '')
+    public function children($tagName = '')
     {
         $result = array();
 
         $tagNames = explode(' ', $tagName);
 
-        foreach ($this->children as $child) {
+        foreach ($this->children as &$child) {
             if (!$tagName || in_array($child->tagName, $tagNames)) {
                 $result[] = $child;
             }
@@ -160,11 +182,30 @@ abstract class ComplexAbstract
 
 
     /**
+     * @param $tagName
+     * @return mixed
+     */
+    public function child($tagName)
+    {
+        return array_shift($this->children($tagName));
+    }
+
+
+    /**
+     * @param \TPPPTX\Type\ComplexAbstract[] $children
+     */
+    public function setChildren($children)
+    {
+        $this->children = $children;
+    }
+
+
+    /**
      * @param ComplexAbstract $child
      */
     public function addChild(ComplexAbstract $child)
     {
-        $this->children[] = $child;
+        $this->children[] = & $child;
     }
 
 
@@ -232,7 +273,7 @@ abstract class ComplexAbstract
 
             $child = new $className();
             $child->fromDom($childNode, array_merge($options, array(
-                'parent' => $this,
+                'parent' => &$this,
             )));
 
             $this->addChild($child);
@@ -252,5 +293,43 @@ abstract class ComplexAbstract
     public function toHtmlDom(\DOMDocument $dom)
     {
         return false;
+    }
+
+
+    public function merge(ComplexAbstract $successor)
+    {
+        $this->nodeValue = $successor->nodeValue;
+        $this->root = $successor->root;
+        $this->parent = $successor->parent;
+
+        foreach ($successor->getAttributes() as $key => $value) {
+            if (($value instanceof SimpleAbstract && $value->isPresent())
+                || $value !== null
+            ) {
+                $this->setAttribute($key, $value);
+            }
+        }
+
+        foreach ($successor->children() as $sChild) {
+            $matched = false;
+            // If there is only one, it replaces the parental
+            if (count($successor->children($sChild->tagName)) == 1) {
+                foreach ($this->children as &$pChild) {
+                    if ($pChild->tagName == $sChild->tagName) {
+                        $pChild->merge($sChild);
+                        $matched = true;
+                        break;
+                    }
+                }
+            } else {
+                // There are more then one of such element so they should be appended
+                // todo check elements maximum allowance rather then actual count
+                throw new \Exception('ComplexAbstract failed to resolve merge of ' . get_called_class() . ' because there are many children of type ' . $sChild->tagName);
+            }
+
+            if (!$matched) {
+                $this->addChild($sChild);
+            }
+        }
     }
 } 

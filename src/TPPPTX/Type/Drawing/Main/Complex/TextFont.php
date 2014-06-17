@@ -41,6 +41,10 @@ class TextFont extends ComplexAbstract
 
     public function toCss()
     {
-        return $this->typeface->get();
+        if (method_exists($this->root, 'getTheme')) {
+            return $this->root->getTheme()->getFont($this->typeface->get());
+        } else {
+            return $this->typeface->get();
+        }
     }
 } 

@@ -10,6 +10,7 @@ namespace TPPPTX\Type\Presentation\Main\Complex;
 
 
 use TPPPTX\Type\ComplexAbstract;
+use TPPPTX\Type\SimpleAbstract;
 
 /**
  * Class GroupShape
@@ -60,10 +61,10 @@ class GroupShape extends ComplexAbstract
         $container = $dom->createElement('div');
         $container->setAttribute('class', 'shape-group');
 
-        if ($tmp = $this->getChildren('grpSpPr'))
+        if ($tmp = $this->children('grpSpPr'))
             $container->setAttribute('style', $tmp[0]->toCss());
 
-        foreach ($this->getChildren('grpSp sp pic') as $shape) {
+        foreach ($this->children('grpSp sp pic') as $shape) {
             if ($tmp = $shape->toHtmlDom($dom))
                 $container->appendChild($tmp);
         }
@@ -77,9 +78,9 @@ class GroupShape extends ComplexAbstract
      */
     public function isPlaceholder()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = array_shift($this->children('nvSpPr'))) {
+            if ($tmp = array_shift($tmp->children('nvPr'))) {
+                if ($tmp = array_shift($tmp->children('ph'))) {
                     return true;
                 }
             }
@@ -94,9 +95,9 @@ class GroupShape extends ComplexAbstract
      */
     public function getPlaceholderId()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = array_shift($this->children('nvSpPr'))) {
+            if ($tmp = array_shift($tmp->children('nvPr'))) {
+                if ($tmp = array_shift($tmp->children('ph'))) {
                     // This is a placeholder =)
                     return $tmp->type->get() . $tmp->idx;
                 }
@@ -116,13 +117,13 @@ class GroupShape extends ComplexAbstract
         }
 
 
-        foreach ($this->getChildren('grpSp') as $group) {
+        foreach ($this->children('grpSp') as $group) {
             if ($ph = $group->findPlaceholder($id)) {
                 return $ph;
             }
         }
 
-        foreach ($this->getChildren('sp') as $shape) {
+        foreach ($this->children('sp') as $shape) {
             if ($shape->isPlaceholder() && $shape->getPlaceholderId() == $id) {
                 return $shape;
             }
@@ -130,4 +131,52 @@ class GroupShape extends ComplexAbstract
 
         return false;
     }
+
+
+    public function merge(ComplexAbstract $successor)
+    {
+        $this->nodeValue = $successor->nodeValue;
+        $this->root = $successor->root;
+        $this->parent = $successor->parent;
+
+        foreach ($successor->getAttributes() as $key => $value) {
+            if (($value instanceof SimpleAbstract && $value->isPresent())
+                || $value !== null
+            ) {
+                $this->setAttribute($key, $value);
+            }
+        }
+
+        // Merge groups
+        // First check if there are placeholders in parent (generally parent is Layout and successor is Slide)
+        /**
+         * This whole thing bases on assumption that placeholders and shapes are matched by their order of appearance in xml
+         * Isn't it sweet to rely on such "solid" thing, dear MS?
+         */
+        foreach ($successor->children('grpSp') as $key => $sGroup) {
+            if (isset($this->children('grpSp')[$key]) && $this->children('grpSp')[$key]->isPlaceholder()) {
+                $this->children('grpSp')[$key]->merge($sGroup);
+            } else {
+                $this->addChild($sGroup);
+            }
+        }
+
+        // Merge shapes
+        // First check if there are placeholders in parent (generally parent is Layout and successor is Slide)
+        /**
+         * This whole thing bases on assumption that placeholders and shapes are matched by their order of appearance in xml
+         * Isn't it sweet to rely on such "solid" thing, dear MS?
+         */
+        foreach ($successor->children('sp') as $key => $sGroup) {
+            if (isset($this->children('sp')[$key]) && $this->children('sp')[$key]->isPlaceholder()) {
+                $this->children('sp')[$key]->merge($sGroup);
+            } else {
+                $this->addChild($sGroup);
+            }
+        }
+
+        // Todo remove placeholders that found no merge
+    }
+
+
 }

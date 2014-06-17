@@ -129,7 +129,7 @@ class Presentation extends RootAbstract
         $result->setAttribute('class', 'presentation-container');
 
         // Get default styles
-//        if ($defaultTextStyle = array_shift($this->getChildren('defaultTextStyle'))) {
+//        if ($defaultTextStyle = array_shift($this->children('defaultTextStyle'))) {
 //            /** @var \TPPPTX\Type\Drawing\Main\Complex\TextListStyle $defaultTextStyle */
 //            if ($contents = $defaultTextStyle->toHtmlDom($dom)) {
 //                $result->appendChild($contents);
@@ -137,9 +137,16 @@ class Presentation extends RootAbstract
 //        }
 
         // Slides!
-        foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $slideId) {
-            $slide = $this->getByFilepath($this->relations[$slideId->getAttribute('r:id')]['target']);
+        foreach ($this->children('sldIdLst')[0]->children() as $slideId) {
+            // Create a clone of presentation for every slide so that it can be changed and then erased to clean memory
+            // @todo rework this ro actual cloning instead of file reparsing
+            $presentation = new Presentation();
+            $presentation->load($this->parser);
+            $slide = $presentation->getByFilepath($this->relations[$slideId->getAttribute('r:id')]['target']);
             $result->appendChild($slide->toHtmlDom($dom));
+            // Clean the dust
+            $presentation->__destruct();
+            unset($presentation);
         }
 
         return $result;
@@ -166,15 +173,17 @@ class Presentation extends RootAbstract
         ));
         $this->parser = $parser;
 
-        // Parse slides
-        foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $slideId) {
-            $slide = $this->getByFilepath($data['relations'][$slideId->getAttribute('r:id')]['target']);
-        }
-
         return $this;
     }
 
 
+    /**
+     * @param $filepath
+     * @return mixed
+     * @todo probably getting rid of registry and creating new object every time might fix the issue.
+     * @todo On the other hand the application will become completely bound to xml
+     * @todo but this method is already fully file dependent =) think of it
+     */
     public function getByFilepath($filepath)
     {
         if (isset($this->registry[$filepath])) {
@@ -208,8 +217,12 @@ class Presentation extends RootAbstract
             'http://schemas.openxmlformats.org/presentationml/2006/main' => array(
                 'sld' => 'TPPPTX\\Type\\Presentation\\Main\\Complex\\Slide',
                 'sldLayout' => 'TPPPTX\\Type\\Presentation\\Main\\Complex\\SlideLayout',
+                'sldMaster' => 'TPPPTX\\Type\\Presentation\\Main\\Complex\\SlideMaster',
                 'presentation' => 'TPPPTX\\Type\\Presentation\\Main\\Complex\\Presentation',
-            )
+            ),
+            'http://schemas.openxmlformats.org/drawingml/2006/main' => array(
+                'theme' => 'TPPPTX\\Type\\Drawing\\Main\\Complex\\OfficeStyleSheet',
+            ),
         );
 
         return $roots[$node->namespaceURI][$node->localName];

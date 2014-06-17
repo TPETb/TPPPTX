@@ -52,6 +52,6 @@ class CommonSlideData extends ComplexAbstract
 
     public function toHtmlDom(\DOMDocument $dom)
     {
-        return $this->getChildren('spTree')[0]->toHtmlDom($dom);
+        return $this->child('spTree')->toHtmlDom($dom);
     }
 }

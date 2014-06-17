@@ -28,9 +28,9 @@ class RootAbstract extends ComplexAbstract
     function __construct($tagName = '', $attributes = array(), $options = array())
     {
         if (isset($options['relations']))
-            $this->relations = $options['relations'];
+            $this->relations = & $options['relations'];
         if (isset($options['presentation']))
-            $this->presentation = $options['presentation'];
+            $this->presentation = & $options['presentation'];
 
         parent::__construct($tagName = '', $attributes, $options);
     }
@@ -53,8 +53,8 @@ class RootAbstract extends ComplexAbstract
 
             $child = new $className();
             $child->fromDom($childNode, array_merge($options, array(
-                'parent' => $this,
-                'root' => $this,
+                'parent' => &$this,
+                'root' => &$this,
             )));
 
             $this->addChild($child);
@@ -64,4 +64,22 @@ class RootAbstract extends ComplexAbstract
     }
 
 
-} 
+    /**
+     * @param \TPPPTX\Type\Presentation\Main\Complex\Presentation $presentation
+     */
+    public function setPresentation($presentation)
+    {
+        $this->presentation = $presentation;
+    }
+
+
+    /**
+     * @return \TPPPTX\Type\Presentation\Main\Complex\Presentation
+     */
+    public function getPresentation()
+    {
+        return $this->presentation;
+    }
+
+
+}

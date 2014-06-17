@@ -68,27 +68,42 @@ class Shape extends ComplexAbstract
         $container = $dom->createElement('div');
         $container->setAttribute('class', 'shape');
 
+//        if ($GLOBALS['counter']++ == 5){
+//            die;
+//        }
+
         $shapeStyle = '';
         // Placeholder processing
         if ($this->isPlaceholder()) {
             // This is a placeholder =)
             if ($this->root instanceof Slide) {
-                // Find a placeholder in Layout
-                if ($tmp = array_shift($this->placeholder->getChildren('spPr')))
-                    $shapeStyle .= $tmp->toCss();
+                // Do merging
+//                d($this);
+                $merged = unserialize(serialize($this->getPlaceholder()));
+                $merged->merge($this);
+
+//                d($this, $merged);
+
+                if ($tmp = array_shift($merged->children('spPr')))
+                    $container->setAttribute('style', $tmp->toCss());
+
+                if ($tmp = array_shift($merged->children('txBody')))
+                    $container->appendChild($tmp->toHtmlDom($dom));
+
+                unset($merged);
             } else if ($this->root instanceof SlideLayout) {
                 // Placeholders are not to be shown if not overridden
                 return false;
             }
+        } else {
+            if ($tmp = array_shift($this->children('spPr')))
+                $container->setAttribute('style', $tmp->toCss());
+
+            if ($tmp = array_shift($this->children('txBody')))
+                if ($p = $tmp->toHtmlDom($dom))
+                    $container->appendChild($p);
         }
 
-        if ($tmp = $this->getChildren('spPr'))
-            $shapeStyle .= $tmp[0]->toCss();
-
-        $container->setAttribute('style', $shapeStyle);
-
-        if ($tmp = array_shift($this->getChildren('txBody')))
-            $container->appendChild($tmp->toHtmlDom($dom));
 
         return $container;
     }
@@ -101,9 +116,9 @@ class Shape extends ComplexAbstract
      */
     public function isPlaceholder()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = array_shift($this->children('nvSpPr'))) {
+            if ($tmp = array_shift($tmp->children('nvPr'))) {
+                if ($tmp = array_shift($tmp->children('ph'))) {
                     if ($this->root instanceof Slide) {
                         // Find a placeholder in Layout
                         $layout = $this->root->getLayout();
@@ -120,18 +135,47 @@ class Shape extends ComplexAbstract
 
 
     /**
+     * Returns a Shape from Layout
+     * @return mixed|null|Shape
+     */
+    public function getPlaceholder()
+    {
+        if ($this->placeholder) {
+            return $this->placeholder;
+        }
+        if ($tmp = array_shift($this->children('nvSpPr'))) {
+            if ($tmp = array_shift($tmp->children('nvPr'))) {
+                if ($tmp = array_shift($tmp->children('ph'))) {
+                    if ($this->root instanceof Slide) {
+                        // Find a placeholder in Layout
+                        $layout = $this->root->getLayout();
+                        $this->placeholder = $layout->findPlaceholder($this->getPlaceholderId());
+
+                        return $this->placeholder;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
      * @return string
      */
     public function getPlaceholderId()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = array_shift($this->children('nvSpPr'))) {
+            if ($tmp = array_shift($tmp->children('nvPr'))) {
+                if ($tmp = array_shift($tmp->children('ph'))) {
                     // This is a placeholder =)
                     return $tmp->type->get() . $tmp->idx;
                 }
             }
         }
+
+        return false;
     }
 
 
@@ -142,16 +186,4 @@ class Shape extends ComplexAbstract
     {
         $this->placeholder = $placeholder;
     }
-
-
-    /**
-     * @return Shape
-     */
-    public function getPlaceholder()
-    {
-        return $this->placeholder;
-    }
-
-
-
 }
