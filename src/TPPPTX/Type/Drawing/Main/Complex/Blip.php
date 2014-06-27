@@ -57,6 +57,7 @@ class Blip extends ComplexAbstract
         $this->attributes = array(
             'r:embed' => '',
             'r:link' => '',
+            'cstate' => '',
         );
 
         parent::__construct($tagName, $attributes, $options);
@@ -65,7 +66,7 @@ class Blip extends ComplexAbstract
 
     public function getFilepath()
     {
-        return '/' . $this->root->getRelations()[$this->getAttribute('r:embed')]['target'];
+        return '#base_path#/' . $this->root->getRelations()[$this->getAttribute('r:embed')]['target'];
     }
 
 } 

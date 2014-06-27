@@ -26,6 +26,7 @@ class FileHandler
      */
     protected $pptxFileHandler;
 
+
     /**
      * @param string $filepath
      * @throws \Exception
@@ -58,6 +59,7 @@ class FileHandler
     {
 
     }
+
 
     /**
      * Read a file from a zip document
@@ -97,6 +99,17 @@ class FileHandler
     public function extract($pathTo, $entries = null)
     {
         $this->pptxFileHandler->extractTo($pathTo, $entries);
+    }
+
+
+    public function extractFolder($pathTo, $folder)
+    {
+        for ($i = 0; $i < $this->pptxFileHandler->numFiles; $i++) {
+            $filename = $this->pptxFileHandler->getNameIndex($i);
+            if (preg_match('/' . str_replace('/', '\\/', $folder) . '(\/.+)/', $filename, $matches)) {
+                file_put_contents($pathTo . $matches[1], $this->read($matches[0]));
+            }
+        }
     }
 
 

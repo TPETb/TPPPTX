@@ -179,8 +179,6 @@ class TextCharacterProperties extends ComplexAbstract
         if ($this->u->isPresent() && $this->u->get())
             $style .= ' text-decoration:underline;';
 
-        if (count($tmp = $this->getChildren('lnSpc')))
-            $style .= ' line-height:' . $tmp[0]->toCss() . ';';
         if (count($tmp = $this->getChildren('latin')))
             $style .= ' font-family:' . $tmp[0]->toCss() . ';';
         if (count($tmp = $this->getChildren('solidFill')))

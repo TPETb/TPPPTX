@@ -96,30 +96,55 @@ class GroupShape extends ComplexAbstract
          * This whole thing bases on assumption that placeholders and shapes are matched by their order of appearance in xml
          * Isn't it sweet to rely on such "solid" thing, dear MS?
          */
-        foreach ($ancestor->getChildren('grpSp') as $key => $aGroup) {
-            if ($aGroup->isPlaceholder()) {
-                if (isset($this->children['grpSp' . $key])) {
-                    $this->children['grpSp' . $key]->merge($aGroup);
-                }
-            } else {
-                $this->addChild($aGroup);
+        $counters = array(
+            'sp' => 0,
+            'grpSp' => 0,
+        );
+        foreach ($ancestor->getChildren() as $aChild) {
+            switch ($aChild->tagName) {
+                case 'grpSp':
+                case 'sp':
+                    if ($aChild->isPlaceholder()) {
+                        if (isset($this->children[$aChild->tagName . $counters[$aChild->tagName]])) {
+                            $this->children[$aChild->tagName . $counters[$aChild->tagName]]->merge($aChild);
+                        }
+                    } else {
+                        $this->addChild($aChild);
+                    }
+                    $counters[$aChild->tagName]++;
+                    break;
+                case 'pic':
+                case 'cxnSp':
+                $this->addChild($aChild);
+                    break;
             }
         }
-
-        foreach ($ancestor->getChildren('sp') as $key => $aShape) {
-            if ($aShape->isPlaceholder()) {
-                if (isset($this->children['sp' . $key])) {
-                    $this->children['sp' . $key]->merge($aShape);
-                }
-            } else {
-                $this->addChild($aShape);
-            }
-        }
-
-        // Connectors and Pics are cheap - just add all
-        foreach ($ancestor->getChildren('cxnSp pic') as $aChild) {
-            $this->addChild($aChild);
-        }
+//
+//
+//        foreach ($ancestor->getChildren('grpSp') as $key => $aGroup) {
+//            if ($aGroup->isPlaceholder()) {
+//                if (isset($this->children['grpSp' . $key])) {
+//                    $this->children['grpSp' . $key]->merge($aGroup);
+//                }
+//            } else {
+//                $this->addChild($aGroup);
+//            }
+//        }
+//
+//        foreach ($ancestor->getChildren('sp') as $key => $aShape) {
+//            if ($aShape->isPlaceholder()) {
+//                if (isset($this->children['sp' . $key])) {
+//                    $this->children['sp' . $key]->merge($aShape);
+//                }
+//            } else {
+//                $this->addChild($aShape);
+//            }
+//        }
+//
+//        // Connectors and Pics are cheap - just add all
+//        foreach ($ancestor->getChildren('cxnSp pic') as $aChild) {
+//            $this->addChild($aChild);
+//        }
     }
 
 

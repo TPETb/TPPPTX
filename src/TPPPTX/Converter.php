@@ -35,15 +35,10 @@ class Converter
             $file = new FileHandler($file);
         }
 
-        echo '<pre>';
         $parser = new Parser($file);
-//        if (isset($_GET['debug'])) d($parser);
-        echo '</pre>';
 
         $pageGenerator = new PageGenerator($parser);
         $pageGenerator->saveAs($outputPath);
-
-//        $pageGenerator->saveToDisk($file, $data, $outputPath);
     }
 
 

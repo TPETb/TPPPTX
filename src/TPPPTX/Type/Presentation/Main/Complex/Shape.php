@@ -104,10 +104,4 @@ class Shape extends ComplexAbstract
         return false;
     }
 
-
-    public function merge(ComplexAbstract $ancestor)
-    {
-        parent::merge($ancestor);
-    }
-
 }

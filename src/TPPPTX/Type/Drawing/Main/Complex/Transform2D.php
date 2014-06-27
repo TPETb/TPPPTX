@@ -11,6 +11,9 @@ namespace TPPPTX\Type\Drawing\Main\Complex;
 
 use TPPPTX\Type\ComplexAbstract;
 use TPPPTX\Type\Drawing\Main\Simple\Angle;
+use TPPPTX\Type\Presentation\Main\Complex\Slide;
+use TPPPTX\Type\Presentation\Main\Complex\SlideLayout;
+use TPPPTX\Type\Presentation\Main\Complex\SlideMaster;
 
 /**
  * Class Transform2D
@@ -86,8 +89,8 @@ class Transform2D extends ComplexAbstract
 
         if ($tmp = $this->getChildren('off')) {
             if (isset($chOffX)) {
-                $style .= ' left:' . ($tmp[0]->x->get() - $chOffX) / 12700 . 'pt;';
-                $style .= ' top:' . ($tmp[0]->y->get() - $chOffY) / 12700 . 'pt;';
+                $style .= ' left:' . round(($tmp[0]->x->get() - $chOffX) / 12700) . 'pt;';
+                $style .= ' top:' . round(($tmp[0]->y->get() - $chOffY) / 12700) . 'pt;';
             } else {
                 $style .= ' left:' . $tmp[0]->x->toCss() . ';';
                 $style .= ' top:' . $tmp[0]->y->toCss() . ';';
@@ -98,6 +101,14 @@ class Transform2D extends ComplexAbstract
             $style .= ' -ms-transform: rotate(' . $this->rot->toCss() . ')' . ';';
             $style .= ' -webkit-transform: rotate(' . $this->rot->toCss() . ')' . ';';
             $style .= ' transform: rotate(' . $this->rot->toCss() . ')' . ';';
+        }
+
+        if ($this->root instanceof SlideMaster) {
+            $style .= ' z-index: 100;';
+        } else if ($this->root instanceof SlideLayout) {
+            $style .= ' z-index: 200;';
+        } else if ($this->root instanceof Slide) {
+            $style .= ' z-index: 300;';
         }
 
         return $style;

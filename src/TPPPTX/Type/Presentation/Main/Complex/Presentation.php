@@ -137,7 +137,8 @@ class Presentation extends RootAbstract
 //        }
 
         // Slides!
-        foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $slideId) {
+        foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $key => $slideId) {
+//            if ($key != 1) continue;
             // Create a clone of presentation for every slide so that it can be changed and then erased to clean memory
             // @todo rework this ro actual cloning instead of file reparsing
             $presentation = new Presentation();

@@ -27,6 +27,6 @@ class Percentage extends SimpleAbstract
      */
     public function toCss()
     {
-        return $this->value / 1000 . '%';
+        return $this->value / 1000 * 1.275 . '%';
     }
 } 

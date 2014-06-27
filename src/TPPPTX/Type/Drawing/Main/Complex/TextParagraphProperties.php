@@ -189,6 +189,8 @@ class TextParagraphProperties extends ComplexAbstract
         foreach ($ancestor->getChildren() as $key => $aChild) {
             if (in_array($aChild->tagName, array('buNone', 'buChar', 'buBlip', 'buAutoNum')))
                 continue; // do not inherit bullet, only style of it
+            if (in_array($aChild->tagName, array('spcBef', 'spcAft')))
+                continue; // do not inherit spacing before and after
             if ($this->child($aChild->tagName)) {
                 // Descendant has such child too
                 $this->children[$aChild->tagName . '0']->merge($aChild);
