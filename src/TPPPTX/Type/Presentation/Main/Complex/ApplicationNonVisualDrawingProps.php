@@ -42,11 +42,11 @@ class ApplicationNonVisualDrawingProps extends ComplexAbstract
     protected $sequence = array(
         'ph' => 'Presentation\\Main\\Complex\\Placeholder',
 
-//        'audioCd' => 'Presentation\\Main\\Complex\\AudioCD',
-//        'wavAudioFile' => 'Presentation\\Main\\Complex\\EmbeddedWAVAudioFile',
-//        'audioFile' => 'Presentation\\Main\\Complex\\AudioFile',
-//        'videoFile' => 'Presentation\\Main\\Complex\\VideoFile',
-//        'quickTimeFile' => 'Presentation\\Main\\Complex\\QuickTimeFile',
+//        'audioCd' => 'Drawing\\Main\\Complex\\AudioCD',
+//        'wavAudioFile' => 'Drawing\\Main\\Complex\\EmbeddedWAVAudioFile',
+        'audioFile' => 'Drawing\\Main\\Complex\\AudioFile',
+        'videoFile' => 'Drawing\\Main\\Complex\\VideoFile',
+//        'quickTimeFile' => 'Drawing\\Main\\Complex\\QuickTimeFile',
 //
 //        'custDataLst' => 'Presentation\\Main\\Complex\\CustomerDataList',
 //        'extLst' => 'Presentation\\Main\\Complex\\ExtensionList',

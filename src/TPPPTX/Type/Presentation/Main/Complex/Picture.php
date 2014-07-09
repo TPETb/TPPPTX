@@ -38,8 +38,58 @@ class Picture extends ComplexAbstract
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
+        // Video
+        if ($tmp = $this->child('nvPicPr')) {
+            if ($tmp = $tmp->child('nvPr')) {
+                if ($tmp = $tmp->child('videoFile')) {
+                    $container = parent::toHtmlDom($dom, array(
+                        'tagName' => 'video',
+                        'noChildren' => true,
+                    ));
+
+                    $container->setAttribute('src', $tmp->getFilepath());
+                    $container->setAttribute('controls', 'true');
+                    $container->setAttribute('poster', $this->child('blipFill')->child('blip')->getFilepath());
+
+                    return $container;
+                }
+            }
+        }
+
+        // Audio
+        if ($tmp = $this->child('nvPicPr')) {
+            if ($tmp = $tmp->child('nvPr')) {
+                if ($tmp = $tmp->child('audioFile')) {
+                    $container = parent::toHtmlDom($dom, array(
+                        'tagName' => 'div',
+                        'noChildren' => true,
+                    ));
+
+                    $audio = parent::toHtmlDom($dom, array(
+                        'tagName' => 'audio',
+                        'noChildren' => true,
+                    ));
+
+                    $audio->setAttribute('src', $tmp->getFilepath());
+                    $audio->setAttribute('id', $id = 'audio_' . substr(md5(uniqid()), 0, 6));
+
+                    $container->appendChild($audio);
+
+                    $img = $dom->createElement('img');
+
+                    $img->setAttribute('src', $this->child('blipFill')->child('blip')->getFilepath());
+                    $img->setAttribute('onclick', "$('#{$id}')[0].play();");
+
+                    $container->appendChild($img);
+
+                    return $container;
+                }
+            }
+        }
+
+        // Simple image
         $container = parent::toHtmlDom($dom, array(
             'tagName' => 'img',
             'noChildren' => true,

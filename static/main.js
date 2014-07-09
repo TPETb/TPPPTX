@@ -2,8 +2,8 @@
  * Created by alex on 5/19/14.
  */
 
-//var scaleMethod = 'contain';
-var scaleMethod = 'cover';
+var scaleMethod = 'contain';
+//var scaleMethod = 'cover';
 
 
 $(document).on('ready', function () {
