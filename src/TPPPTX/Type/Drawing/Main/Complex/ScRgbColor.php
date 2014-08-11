@@ -9,6 +9,7 @@
 namespace TPPPTX\Type\Drawing\Main\Complex;
 
 
+use TPPPTX\Type\ModifiableColor;
 use TPPPTX\Type\ComplexAbstract;
 use TPPPTX\Type\Drawing\Main\Simple\Percentage;
 
@@ -60,6 +61,40 @@ use TPPPTX\Type\Drawing\Main\Simple\Percentage;
  */
 class ScRgbColor extends ComplexAbstract
 {
+    use ModifiableColor;
+
+    protected $sequence = array(
+        'tint' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'shade' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'comp' => 'Drawing\\Main\\Complex\\ComplementTransform',
+        'inv' => 'Drawing\\Main\\Complex\\InverseTransform',
+        'gray' => 'Drawing\\Main\\Complex\\GrayscaleTransform',
+        'alpha' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'alphaOff' => 'Drawing\\Main\\Complex\\FixedPercentage',
+        'alphaMod' => 'Drawing\\Main\\Complex\\PositivePercentage',
+        'hue' => 'Drawing\\Main\\Complex\\PositiveFixedAngle',
+        'hueOff' => 'Drawing\\Main\\Complex\\Angle',
+        'hueMod' => 'Drawing\\Main\\Complex\\PositivePercentage',
+        'sat' => 'Drawing\\Main\\Complex\\Percentage',
+        'satOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'satMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'lum' => 'Drawing\\Main\\Complex\\Percentage',
+        'lumOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'lumMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'red' => 'Drawing\\Main\\Complex\\Percentage',
+        'redOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'redMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'green' => 'Drawing\\Main\\Complex\\Percentage',
+        'greenOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'greenMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'blue' => 'Drawing\\Main\\Complex\\Percentage',
+        'blueOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'blueMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'gamma' => 'Drawing\\Main\\Complex\\GammaTransform',
+        'invGamma' => 'Drawing\\Main\\Complex\\InverseGammaTransform',
+    );
+
+
     /**
      * @param $tagName
      * @param array $attributes
@@ -83,10 +118,12 @@ class ScRgbColor extends ComplexAbstract
     public function toCss()
     {
         return
-            '#'
-            . dechex(floor(255 * $this->r->get() / 100))
-            . dechex(floor(255 * $this->g->get() / 100))
-            . dechex(floor(255 * $this->b->get() / 100));
+            $this->applyModifications(
+                '#'
+                . dechex(floor(255 * $this->r->get() / 100))
+                . dechex(floor(255 * $this->g->get() / 100))
+                . dechex(floor(255 * $this->b->get() / 100))
+            );
     }
 
 } 

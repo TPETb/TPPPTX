@@ -24,5 +24,12 @@ namespace TPPPTX\Type\Drawing\Main\Simple;
  */
 class TextSpacingPercentOrPercentString extends \TPPPTX\Type\Shared\CommonSimpleTypes\Simple\Percentage
 {
-
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public function toCss()
+    {
+        return $this->value / 1000 * 1.275 . '%';
+    }
 } 

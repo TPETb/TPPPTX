@@ -9,6 +9,7 @@
 namespace TPPPTX\Type\Drawing\Main\Complex;
 
 
+use TPPPTX\Type\ModifiableColor;
 use TPPPTX\Type\ComplexAbstract;
 use TPPPTX\Type\Drawing\Main\Simple\SchemeColorVal;
 
@@ -56,6 +57,40 @@ use TPPPTX\Type\Drawing\Main\Simple\SchemeColorVal;
  * @package TPPPTX\Type\Drawing\Main\Complex
  */
 class SchemeColor extends ComplexAbstract {
+    use ModifiableColor;
+
+
+    protected $sequence = array(
+        'tint' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'shade' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'comp' => 'Drawing\\Main\\Complex\\ComplementTransform',
+        'inv' => 'Drawing\\Main\\Complex\\InverseTransform',
+        'gray' => 'Drawing\\Main\\Complex\\GrayscaleTransform',
+        'alpha' => 'Drawing\\Main\\Complex\\PositiveFixedPercentage',
+        'alphaOff' => 'Drawing\\Main\\Complex\\FixedPercentage',
+        'alphaMod' => 'Drawing\\Main\\Complex\\PositivePercentage',
+        'hue' => 'Drawing\\Main\\Complex\\PositiveFixedAngle',
+        'hueOff' => 'Drawing\\Main\\Complex\\Angle',
+        'hueMod' => 'Drawing\\Main\\Complex\\PositivePercentage',
+        'sat' => 'Drawing\\Main\\Complex\\Percentage',
+        'satOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'satMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'lum' => 'Drawing\\Main\\Complex\\Percentage',
+        'lumOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'lumMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'red' => 'Drawing\\Main\\Complex\\Percentage',
+        'redOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'redMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'green' => 'Drawing\\Main\\Complex\\Percentage',
+        'greenOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'greenMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'blue' => 'Drawing\\Main\\Complex\\Percentage',
+        'blueOff' => 'Drawing\\Main\\Complex\\Percentage',
+        'blueMod' => 'Drawing\\Main\\Complex\\Percentage',
+        'gamma' => 'Drawing\\Main\\Complex\\GammaTransform',
+        'invGamma' => 'Drawing\\Main\\Complex\\InverseGammaTransform',
+    );
+
     function __construct($tagName = '', $attributes = array(), $options = array())
     {
         $this->attributes = array(
@@ -68,7 +103,7 @@ class SchemeColor extends ComplexAbstract {
 
     public function toCss()
     {
-        return $this->root->getMaster()->getSchemeColor($this->val->get());
+        return $this->applyModifications($this->root->getMaster()->getSchemeColor($this->val->get()));
     }
 
 } 
