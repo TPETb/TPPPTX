@@ -26,14 +26,24 @@ function scaleSlidesToViewport() {
             // Window width/height ratio > element's (window is "wider")
             var zoom = $(window).width() / $(this).width();
             $(this).css({
-                zoom: zoom,
+                "-ms-transform-origin": "0 0",
+                "-webkit-transform-origin": "0 0",
+                "transform-origin": "0 0",
+                "-ms-transform": "scale(" + zoom + ")",
+                "-webkit-transform": "scale(" + zoom + ")",
+                "transform": "scale(" + zoom + ")",
                 top: ($(window).height() - $(this).height() * zoom) / 2 + 'px'
             });
         } else {
             // Window width/height ratio < element's (slide is "wider")
             var zoom = $(window).height() / $(this).height();
             $(this).css({
-                zoom: zoom,
+                "-ms-transform-origin": "0 0",
+                "-webkit-transform-origin": "0 0",
+                "transform-origin": "0 0",
+                "-ms-transform": "scale(" + zoom + ")",
+                "-webkit-transform": "scale(" + zoom + ")",
+                "transform": "scale(" + zoom + ")",
                 left: ($(window).width() - $(this).width() * zoom) / 2 + 'px'
             });
         }

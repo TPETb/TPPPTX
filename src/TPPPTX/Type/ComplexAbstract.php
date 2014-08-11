@@ -298,7 +298,7 @@ abstract class ComplexAbstract
 
         $container->setAttribute('style', $style);
 
-        $container->setAttribute('data-class', get_called_class());
+//        $container->setAttribute('data-class', get_called_class());
 
         return $container;
     }

@@ -62,34 +62,52 @@ class GroupTransform2D extends ComplexAbstract
      */
     public function toCssInline()
     {
-        $style = ' position: absolute;';
+        $style = ' position: absolute; top:0; left:0;';
 
         if ($tmp = $this->getChildren('off')) {
-            $style .= ' left:' . $tmp[0]->x->toCss() . ';';
-            $style .= ' top:' . $tmp[0]->y->toCss() . ';';
+            $style .= ' margin-left:' . $tmp[0]->x->toCss() . ';';
+            $style .= ' margin-top:' . $tmp[0]->y->toCss() . ';';
         }
-
-
 
         if ($tmp = $this->getChildren('ext')) {
             $style .= ' width:' . $tmp[0]->cx->toCss() . ';';
             $style .= ' height:' . $tmp[0]->cy->toCss() . ';';
         }
 
+        if ($this->getChildren('chExt') && $this->getChildren('chExt')[0]->cx->get() > 0) {
+            $style .= ' -ms-transform-origin: top left;';
+            $style .= ' -webkit-transform-origin: top left;';
+            $style .= ' transform-origin: top left;';
+            $style .= ' -ms-transform: scale('.$this->getChildren('ext')[0]->cx->get() / $this->getChildren('chExt')[0]->cx->get().');';
+            $style .= ' -webkit-transform: scale('.$this->getChildren('ext')[0]->cx->get() / $this->getChildren('chExt')[0]->cx->get().');';
+            $style .= ' transform: scale('.$this->getChildren('ext')[0]->cx->get() / $this->getChildren('chExt')[0]->cx->get().');';
+        }
+
+        if ($this->getChildren('chOff')) {
+            if ($this->getChildren('chExt') && $this->getChildren('chExt')[0]->cx->get() > 0) {
+                $style .= ' left:-'.$this->getChildren('ext')[0]->cx->get() / $this->getChildren('chExt')[0]->cx->get() * $this->getChildren('chOff')[0]->x->toCss().'pt;';
+                $style .= ' top:-'.$this->getChildren('ext')[0]->cy->get() / $this->getChildren('chExt')[0]->cy->get() * $this->getChildren('chOff')[0]->y->toCss().'pt;';
+            } else {
+                $style .= ' left:-'.$this->getChildren('chOff')[0]->x->toCss().'pt;';
+                $style .= ' top:-'.$this->getChildren('chOff')[0]->y->toCss().'pt;';
+            }
+        }
+
         if ($this->rot->isPresent()) {
+            $style .= ' -ms-transform-origin: center;';
+            $style .= ' -webkit-transform-origin: center;';
+            $style .= ' transform-origin: center;';
             $style .= ' -ms-transform: rotate(' . $this->rot . ')' . ';';
             $style .= ' -webkit-transform: rotate(' . $this->rot . ')' . ';';
             $style .= ' transform: rotate(' . $this->rot . ')' . ';';
         }
 
-//        if (($tmp = $this->child('chExt')) && $this->child('ext') && $this->child('ext')->cx->get() > 0) {
-//            $zoom = $this->child('ext')->cx->get() / $tmp->cx->get();
-//            $style .= ' zoom:' . $zoom . ';';
-//        }
-//
-        if ($tmp = $this->child('chOff')) {
-//                $style .= ' margin-left:-' . $tmp->x->toCss() . ';';
-//                $style .= ' margin-top:-' . $tmp->y->toCss() . ';';
+        if ($this->root instanceof SlideMaster) {
+            $style .= ' z-index: 100;';
+        } else if ($this->root instanceof SlideLayout) {
+            $style .= ' z-index: 200;';
+        } else if ($this->root instanceof Slide) {
+            $style .= ' z-index: 300;';
         }
 
 

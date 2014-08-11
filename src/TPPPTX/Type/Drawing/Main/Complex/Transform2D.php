@@ -61,21 +61,17 @@ class Transform2D extends ComplexAbstract
      */
     public function toCssInline()
     {
-        $style = ' position: absolute;';
+        $style = ' position: absolute; top:0; left:0;';
 
-        if ($tmp = $this->parent->parent->parent->child('grpSpPr')) {
-            if ($tmp = $tmp->child('xfrm')) {
-                if ($tmp->child('chExt') && $tmp->child('ext')) {
-                    if ($tmp->child('chExt')->cx->get() > 0 && $tmp->child('ext')->cx->get() > 0) {
-                        $zoom = $tmp->child('ext')->cx->get() / $tmp->child('chExt')->cx->get();
-                    }
-                }
-                if ($tmp->child('chOff')) {
-                    $chOffX = $tmp->child('chOff')->x->get();
-                    $chOffY = $tmp->child('chOff')->y->get();
-                }
-            }
-        }
+//        if ($tmp = $this->parent->parent->parent->child('grpSpPr')) {
+//            if ($tmp = $tmp->child('xfrm')) {
+//                if ($tmp->child('chExt') && $tmp->child('ext')) {
+//                    if ($tmp->child('chExt')->cx->get() > 0 && $tmp->child('ext')->cx->get() > 0) {
+//                        $zoom = $tmp->child('ext')->cx->get() / $tmp->child('chExt')->cx->get();
+//                    }
+//                }
+//            }
+//        }
 
         if ($tmp = $this->getChildren('ext')) {
             if (isset($zoom)) {
@@ -88,12 +84,12 @@ class Transform2D extends ComplexAbstract
         }
 
         if ($tmp = $this->getChildren('off')) {
-            if (isset($chOffX)) {
-                $style .= ' left:' . round(($tmp[0]->x->get() - $chOffX) / 12700) . 'pt;';
-                $style .= ' top:' . round(($tmp[0]->y->get() - $chOffY) / 12700) . 'pt;';
+            if (isset($zoom)) {
+                $style .= ' margin-left:' . $tmp[0]->x->toCss() * $zoom . 'pt;';
+                $style .= ' margin-top:' . $tmp[0]->y->toCss() * $zoom . 'pt;';
             } else {
-                $style .= ' left:' . $tmp[0]->x->toCss() . ';';
-                $style .= ' top:' . $tmp[0]->y->toCss() . ';';
+                $style .= ' margin-left:' . $tmp[0]->x->toCss() . ';';
+                $style .= ' margin-top:' . $tmp[0]->y->toCss() . ';';
             }
         }
 
