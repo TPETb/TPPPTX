@@ -30,7 +30,8 @@ use TPPPTX\Type\ComplexAbstract;
  * </xsd:complexType>
  * @package TPPPTX\Type\Drawing\Main\Complex
  */
-class TextListStyle extends ComplexAbstract {
+class TextListStyle extends ComplexAbstract
+{
     protected $sequence = array(
         'defPPr' => 'Drawing\\Main\\Complex\\TextParagraphProperties',
         'lvl1pPr' => 'Drawing\\Main\\Complex\\TextParagraphProperties',
@@ -46,7 +47,12 @@ class TextListStyle extends ComplexAbstract {
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    /**
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return \DOMElement
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $style = $dom->createElement('style');
 

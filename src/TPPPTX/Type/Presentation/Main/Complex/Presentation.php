@@ -121,9 +121,10 @@ class Presentation extends RootAbstract
 
     /**
      * @param \DOMDocument $dom
+     * @param array $options
      * @return \DOMElement
      */
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $result = $dom->createElement('div');
         $result->setAttribute('class', 'presentation-container');

@@ -44,12 +44,12 @@ class TextParagraph extends ComplexAbstract
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = $dom->createElement('p');
 
         $lvl = 1;
-        if ($tmp = array_shift($this->getChildren('pPr'))) {
+        if ($tmp = $this->child('pPr')) {
             $lvl += $tmp->lvl->get();
         }
 

@@ -23,20 +23,28 @@ use TPPPTX\Type\ComplexAbstract;
  */
 class RegularTextRun extends ComplexAbstract
 {
+    /**
+     * @var array
+     */
     protected $sequence = array(
         'rPr' => 'Drawing\\Main\\Complex\\TextCharacterProperties',
         't' => 'ComplexConcrete',
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    /**
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return \DOMElement
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = $dom->createElement('span');
-        if ($tmp = array_shift($this->getChildren('rPr'))) {
+        if ($tmp = $this->child('rPr')) {
             $container->setAttribute('style', $tmp->toCssInline());
         }
 
-        $container->nodeValue = htmlspecialchars($this->getChildren('t')[0]->nodeValue);
+        $container->nodeValue = htmlspecialchars($this->child('t')->nodeValue);
 
         return $container;
     }

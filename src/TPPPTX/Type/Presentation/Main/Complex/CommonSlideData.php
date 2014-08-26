@@ -50,7 +50,12 @@ class CommonSlideData extends ComplexAbstract
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    /**
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return mixed
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         return $this->child('spTree')->toHtmlDom($dom);
     }

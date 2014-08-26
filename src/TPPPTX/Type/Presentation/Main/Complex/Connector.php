@@ -35,7 +35,7 @@ class Connector extends ComplexAbstract{
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = parent::toHtmlDom($dom);
         $container->setAttribute('class', 'connector');

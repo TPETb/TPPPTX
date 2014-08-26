@@ -187,7 +187,7 @@ abstract class ComplexAbstract
      */
     public function child($tagName)
     {
-        return array_shift($this->getChildren($tagName));
+        return isset($this->getChildren($tagName)[0]) ? $this->getChildren($tagName)[0] : null;
     }
 
 
@@ -298,7 +298,7 @@ abstract class ComplexAbstract
 
         $container->setAttribute('style', $style);
 
-//        $container->setAttribute('data-class', get_called_class());
+        $container->setAttribute('data-class', get_called_class());
 
         return $container;
     }

@@ -57,9 +57,10 @@ class Shape extends ComplexAbstract
 
     /**
      * @param \DOMDocument $dom
-     * @return bool|\DOMElement
+     * @param array $options
+     * @return \DOMElement
      */
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = parent::toHtmlDom($dom);
         $container->setAttribute('class', 'shape');
@@ -75,9 +76,9 @@ class Shape extends ComplexAbstract
      */
     public function isPlaceholder()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = $this->child('nvSpPr')) {
+            if ($tmp = $tmp->child('nvPr')) {
+                if ($tmp = $tmp->child('ph')) {
                     return true;
                 }
             }
@@ -92,9 +93,9 @@ class Shape extends ComplexAbstract
      */
     public function getPlaceholderType()
     {
-        if ($tmp = array_shift($this->getChildren('nvSpPr'))) {
-            if ($tmp = array_shift($tmp->getChildren('nvPr'))) {
-                if ($tmp = array_shift($tmp->getChildren('ph'))) {
+        if ($tmp = $this->child('nvSpPr')) {
+            if ($tmp = $tmp->child('nvPr')) {
+                if ($tmp = $tmp->child('ph')) {
                     // This is a placeholder =)
                     return $tmp->type->get();
                 }

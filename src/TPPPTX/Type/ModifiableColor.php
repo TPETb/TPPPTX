@@ -21,6 +21,8 @@ trait ModifiableColor
 
             $colorBak = $color;
             $color = $this->arrayToRgb($this->hslToRgb($hsl));
+
+//            d($colorBak, 'lumMod', $tmp->val->get(), $hslBak, $hsl, $color);
         }
 
         if ($tmp = $this->child('lumOff')) {
@@ -31,6 +33,8 @@ trait ModifiableColor
 
             $colorBak = $color;
             $color = $this->arrayToRgb($this->hslToRgb($hsl));
+
+//            d($colorBak, 'lumOff', $tmp->val->get(), $hslBak, $hsl, $color);
         }
 
         return $color;

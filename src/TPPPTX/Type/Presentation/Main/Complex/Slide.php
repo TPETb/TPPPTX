@@ -99,9 +99,10 @@ class Slide extends RootAbstract
 
     /**
      * @param \DOMDocument $dom
+     * @param array $options
      * @return \DOMElement
      */
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $slide = $dom->createElement('div');
         $slide->setAttribute('class', 'slide');
@@ -110,6 +111,10 @@ class Slide extends RootAbstract
         if ($this->layout) {
             // If there is Layout, merge Common data from it to slide
             $this->child('cSld')->merge($this->layout->child('cSld'));
+
+            if ($this->layout->getMaster()) {
+                $this->child('cSld')->merge($this->layout->getMaster()->child('cSld'));
+            }
         }
 
         $slide->appendChild($this->child('cSld')->toHtmlDom($dom));

@@ -98,7 +98,8 @@ class PageGenerator
 
         // Store file
         $assetsPath = $output . '_files';
-        $assetsUrl = array_pop(array_slice(explode('/', $assetsPath), -1, 1));
+        $tmp = array_slice(explode('/', $assetsPath), -1, 1);
+        $assetsUrl = array_pop($tmp);
         mkdir($assetsPath);
         copy(dirname(__FILE__) . '/../../static/main.js', $assetsPath . '/main.js');
         copy(dirname(__FILE__) . '/../../static/main.css', $assetsPath . '/main.css');

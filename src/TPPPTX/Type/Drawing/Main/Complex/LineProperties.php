@@ -65,7 +65,7 @@ class LineProperties extends ComplexAbstract
 //        'gradFill' => 'Drawing\\Main\\Complex\\GradientFillProperties',
 //        'pattFill' => 'Drawing\\Main\\Complex\\PatternFillProperties',
 //
-//        'prstDash' => 'Drawing\\Main\\Complex\\PresetLineDashProperties',
+        'prstDash' => 'Drawing\\Main\\Complex\\PresetLineDashProperties',
 //        'custDash' => 'Drawing\\Main\\Complex\\DashStopList',
 //
 //        'round' => 'Drawing\\Main\\Complex\\LineJoinRound',
@@ -99,7 +99,13 @@ class LineProperties extends ComplexAbstract
             $style .= ' border-color:' . $tmp->toCss() . ';';
         }
 
-        $style .= ' border-style: solid; border-width:' . $this->w->toCss() . ';';
+        $style .= ' border-width:' . $this->w->toCss() . ';';
+
+        if ($this->child('prstDash')) {
+            $style .= $this->child('prstDash')->toCssInline();
+        } else {
+            $style .= ' border-style: solid;';
+        }
 
         return $style;
     }

@@ -56,7 +56,7 @@ class GroupShape extends ComplexAbstract
      * @param \DOMDocument $dom
      * @return \DOMElement
      */
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = parent::toHtmlDom($dom);
         $container->setAttribute('class', 'shape-group');

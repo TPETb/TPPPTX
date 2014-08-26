@@ -30,6 +30,6 @@ class TextSpacingPercentOrPercentString extends \TPPPTX\Type\Shared\CommonSimple
      */
     public function toCss()
     {
-        return $this->value / 1000 * 1.275 . '%';
+        return $this->value / 100000 . 'em';
     }
 } 

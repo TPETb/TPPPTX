@@ -32,11 +32,11 @@ class TextBody extends ComplexAbstract
     );
 
 
-    public function toHtmlDom(\DOMDocument $dom)
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
         $container = $dom->createElement('div');
 
-        if ($tmp = array_shift($this->getChildren('bodyPr')))
+        if ($tmp = $this->child('bodyPr'))
             $container->setAttribute('style', $tmp->toCssInline());
 
         foreach ($this->getChildren('p') as $child) {
