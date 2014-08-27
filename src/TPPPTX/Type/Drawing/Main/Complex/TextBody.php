@@ -44,6 +44,10 @@ class TextBody extends ComplexAbstract
                 $container->appendChild($tmp);
         }
 
+        if (isset($_GET['show_class'])) {
+            $container->setAttribute('data-class', get_called_class());
+        }
+
         return $container;
     }
 

@@ -32,44 +32,42 @@ use TPPPTX\Type\SimpleAbstract;
  */
 class PresetLineDashVal extends SimpleAbstract
 {
-    /**
-     *
-     */
-    public function toCss()
+
+    public function getStrokeDasharray($w)
     {
         switch ($this->value) {
             case 'solid':
-                return 'solid';
+                return '1pt';
                 break;
             case 'dot':
-                return 'dotted';
+                return '1pt, ' . $w * 1.5.'pt';
                 break;
             case 'dash':
-                return 'dashed';
+                return $w * 1.5 .'pt' . ', ' . $w * 1.5.'pt';
                 break;
             case 'lgDash':
-                return 'dashed';
+                return $w * 3 .'pt' . ', ' . $w * 1.5.'pt';
                 break;
             case 'dashDot':
-                return 'dotted';
+                return $w * 1.5 .'pt' . ', ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5.'pt';
                 break;
             case 'lgDashDot':
-                return 'dashed';
+                return $w * 3 .'pt' . ', ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5.'pt';
                 break;
             case 'lgDashDotDot':
-                return 'dotted';
+                return $w * 3 .'pt' . ', ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5.'pt';
                 break;
             case 'sysDash':
-                return 'dashed';
+                return $w * 1.5 .'pt' . ', ' . $w * 1.5 .'pt';
                 break;
             case 'sysDot':
-                return 'dotted';
+                return $w * 1.5 .'pt' . ', ' . $w * 1.5 .'pt';
                 break;
             case 'sysDashDot':
-                return 'dashed';
+                return $w * 1.5 .'pt' . ', ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5.'pt';
                 break;
             case 'sysDashDotDot':
-                return 'dotted';
+                return $w * 3 .'pt' . ', ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5 .'pt'. ', 1, ' . $w * 1.5.'pt';
                 break;
         }
     }

@@ -11,6 +11,10 @@ namespace TPPPTX\Type\Drawing\Main\Simple;
 
 use TPPPTX\Type\SimpleAbstract;
 
-class TextPoint extends SimpleAbstract{
-
+class TextPoint extends SimpleAbstract
+{
+    public function toCss()
+    {
+        return $this->value / 1000 . '%';
+    }
 } 

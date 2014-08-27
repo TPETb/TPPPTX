@@ -60,8 +60,8 @@ class ShapeProperties extends ComplexAbstract
     protected $sequence = array(
         'xfrm' => 'Drawing\\Main\\Complex\\Transform2D',
 
-//        'custGeom' => 'Drawing\\Main\\Complex\\CustomGeometry2D',
-//        'prstGeom' => 'Drawing\\Main\\Complex\\PresetGeometry2D',
+        'custGeom' => 'Drawing\\Main\\Complex\\CustomGeometry2D',
+        'prstGeom' => 'Drawing\\Main\\Complex\\PresetGeometry2D',
 
         'noFill' => 'Drawing\\Main\\Complex\\NoFillProperties',
         'solidFill' => 'Drawing\\Main\\Complex\\SolidColorFillProperties',
@@ -108,10 +108,20 @@ class ShapeProperties extends ComplexAbstract
             $style .= $tmp->toCssInline();
         }
 
-        if ($tmp = $this->child('ln')) {
-            $style .= $tmp->toCssInline();
-        }
-
         return $style;
+    }
+
+
+    /**
+     * Do not generate html elements
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return null
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        if ($tmp = $this->child('custGeom prstGeom')) {
+            return $tmp->toHtmlDom($dom, $options);
+        }
     }
 } 

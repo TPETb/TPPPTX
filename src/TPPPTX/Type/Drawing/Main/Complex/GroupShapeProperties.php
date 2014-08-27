@@ -77,7 +77,7 @@ class GroupShapeProperties extends ComplexAbstract
         $this->attributes = array(
             'bwMode' => new BlackWhiteMode(),
         );
-        
+
         parent::__construct($tagName, $attributes, $options);
     }
 
@@ -96,4 +96,18 @@ class GroupShapeProperties extends ComplexAbstract
 
         return $style;
     }
+
+
+    /**
+     * Do not generate html elements
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return null
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        return null;
+    }
+
+
 } 

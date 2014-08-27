@@ -290,7 +290,8 @@ abstract class ComplexAbstract
         foreach ($this->getChildren() as $child) {
             if (method_exists($child, 'toCssInline')) {
                 $style .= $child->toCssInline();
-            } else if (!isset($options['noChildren']) && $tmp = $child->toHtmlDom($dom)) {
+            }
+            if (!isset($options['noChildren']) && $tmp = $child->toHtmlDom($dom)) {
                 // todo check if element can both convert to inline css and html
                 $container->appendChild($tmp);
             }
@@ -298,7 +299,9 @@ abstract class ComplexAbstract
 
         $container->setAttribute('style', $style);
 
-        $container->setAttribute('data-class', get_called_class());
+        if (isset($_GET['show_class'])) {
+            $container->setAttribute('data-class', get_called_class());
+        }
 
         return $container;
     }

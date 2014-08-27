@@ -48,8 +48,8 @@ class Transform2D extends ComplexAbstract
     {
         $this->attributes = array(
             'rot' => new Angle(),
-            'flipH' => 'false',
-            'flipV' => 'false',
+            'flipH' => 0,
+            'flipV' => 0,
         );
 
         parent::__construct($tagName, $attributes, $options);

@@ -145,6 +145,8 @@ class TextParagraphProperties extends ComplexAbstract
 
         if ($section == 'p') {
             // Style for paragraph itself
+//            if (count($tmp = $this->getChildren('defRPr')))
+//                $style .= $tmp[0]->toCssInline();
             if ($this->marL->isPresent())
                 $style .= ' margin-left:' . $this->marL->toCss() . ';';
             if ($this->marR->isPresent())
@@ -161,14 +163,15 @@ class TextParagraphProperties extends ComplexAbstract
                 $style .= ' margin-top:' . $tmp[0]->toCss() . ';';
             if (count($tmp = $this->getChildren('spcAft')))
                 $style .= ' margin-bottom:' . $tmp[0]->toCss() . ';';
-            if (count($tmp = $this->getChildren('defRPr')))
-                $style .= $tmp[0]->toCssInline();
+
         } else if ($section == 'bullet') {
             // Styles of bullet for this paragraph
             if (count($tmp = $this->getChildren('buClr')))
                 $style .= ' color:' . $tmp[0]->toCss() . ';';
             if (count($tmp = $this->getChildren('buSzPct buSzPts')))
                 $style .= ' font-size:' . $tmp[0]->toCss() . ';';
+
+            $style .= " height: 1px;";
         }
 
         return $style;

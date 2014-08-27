@@ -29,4 +29,16 @@ class ConnectorNonVisual extends ComplexAbstract
 //        'cNvCxnSpPr' => 'Drawing\\Main\\Complex\\NonVisualConnectorProperties',
 //        'nvPr' => 'Presentation\\Main\\Complex\\ApplicationNonVisualDrawingProps',
     );
+
+
+    /**
+     * Do not generate html elements
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return null
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        return null;
+    }
 } 

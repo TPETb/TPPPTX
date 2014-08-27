@@ -13,4 +13,16 @@ use TPPPTX\Type\ComplexAbstract;
 
 class ShapeStyle extends ComplexAbstract {
 
+
+
+    /**
+     * Do not generate html elements
+     * @param \DOMDocument $dom
+     * @param array $options
+     * @return null
+     */
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        return null;
+    }
 } 

@@ -134,6 +134,8 @@ class TextBodyProperties extends ComplexAbstract
         $tmp = $this->bIns->isPresent() ? $this->bIns->toCss() : ($this->defaults['bIns'] / 12700 . 'pt');
         $style .= " margin-bottom:{$tmp};";
 
+        $style .= ' position:relative;';
+
         return $style;
     }
 } 

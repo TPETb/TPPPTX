@@ -85,7 +85,7 @@ class TextParagraph extends ComplexAbstract
             if ($this->root instanceof SlideLayout) {
                 $pType = 'other';
             } else {
-                $pType = 'body';
+                $pType = 'other';
             }
         }
         if ($tmp = $this->root->getMaster()->child('txStyles')) {
@@ -105,31 +105,67 @@ class TextParagraph extends ComplexAbstract
         // Attach styles
         $container->setAttribute('style', $this->child('pPr')->toCssInline('p'));
 
-        unset($styleChain);
-
         // Add bullet
-        if (count($this->getChildren('r br')) && $tmp = $this->child('pPr')) {
-            if (!$tmp->child('buNone')) {
-                if ($tmp = $tmp->child('buChar')) {
-                    $bullet = $dom->createElement('span');
-                    $bullet->setAttribute('class', 'bullet');
-                    $buStyle = $this->child('pPr')->toCssInline('bullet');
-                    // Check if this is correct to set bullet width equal to indent
-                    $buStyle .= ' display:inline-block; float:left; width:' . (-$this->child('pPr')->indent->toCss()) . 'pt;';
-                    $bullet->setAttribute('style', $buStyle);
-                    $bullet->nodeValue = $tmp->char;
-                    $container->appendChild($bullet);
-                }
-            }
-        }
+//        if (count($this->getChildren('r br')) && $tmp = $this->child('pPr')) {
+//            if (!$tmp->child('buNone')) {
+//                if ($tmp = $tmp->child('buChar')) {
+//                    $bullet = $dom->createElement('span');
+//                    $bullet->setAttribute('class', 'bullet');
+//                    $buStyle = $this->child('pPr')->toCssInline('bullet');
+//                    // Check if this is correct to set bullet width equal to indent
+//                    $buStyle .= ' display:inline-block; float:left; min-width:' . (-$this->child('pPr')->indent->toCss()) . 'pt;';
+//                    $bullet->setAttribute('style', $buStyle);
+//                    $bullet->nodeValue = $tmp->char;
+//                    $container->appendChild($bullet);
+//                }
+//            }
+//        }
 
         // Add text and breaks
+        $i = 0;
         foreach ($this->getChildren('r br') as $child) {
-            $container->appendChild($child->toHtmlDom($dom));
+            $childDom = $child->toHtmlDom($dom);
+
+            if ($i++ == 0 && $tmp = $this->child('pPr')) {
+                if (!$tmp->child('buNone')) {
+                    if ($tmp = $tmp->child('buChar')) {
+                        $bullet = $dom->createElement('span');
+                        $bullet->setAttribute('class', 'bullet');
+                        $buStyle = $this->child('pPr')->toCssInline('bullet');
+                        // Check if this is correct to set bullet width equal to indent
+                        $buStyle .= ' display:inline-block; float:left; min-width:' . (-$this->child('pPr')->indent->toCss()) . 'pt;';
+                        $bullet->setAttribute('style', $buStyle);
+                        $bullet->nodeValue = $tmp->char;
+                        $childDom->insertBefore($bullet, $childDom->firstChild);
+                    }
+                }
+            }
+
+            $container->appendChild($childDom);
         }
 
         if (!count($this->getChildren('r br'))) {
-            $container->nodeValue = '&nbsp;';
+            if ($this->child('endParaRPr')) {
+                $span = $dom->createElement('span');
+
+                $style = '';
+                if ($tmp = $this->child('pPr')->child('defRPr')) {
+                    $style .= $tmp->toCssInline();
+                }
+                if ($tmp = $this->child('endParaRPr')) {
+                    $style .= $tmp->toCssInline();
+                }
+                $span->setAttribute('style', $style);
+
+                $span->nodeValue = '&nbsp;';
+                $container->appendChild($span);
+            } else {
+                $container->nodeValue = '&nbsp;';
+            }
+        }
+
+        if (isset($_GET['show_class'])) {
+            $container->setAttribute('data-class', get_called_class());
         }
 
         return $container;

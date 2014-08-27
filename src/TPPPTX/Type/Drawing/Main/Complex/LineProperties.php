@@ -60,17 +60,17 @@ use TPPPTX\Type\Drawing\Main\Simple\PenAlignment;
 class LineProperties extends ComplexAbstract
 {
     protected $sequence = array(
-//        'noFill' => 'Drawing\\Main\\Complex\\NoFillProperties',
+        'noFill' => 'Drawing\\Main\\Complex\\NoFillProperties',
         'solidFill' => 'Drawing\\Main\\Complex\\SolidColorFillProperties',
 //        'gradFill' => 'Drawing\\Main\\Complex\\GradientFillProperties',
 //        'pattFill' => 'Drawing\\Main\\Complex\\PatternFillProperties',
 //
         'prstDash' => 'Drawing\\Main\\Complex\\PresetLineDashProperties',
-//        'custDash' => 'Drawing\\Main\\Complex\\DashStopList',
+        'custDash' => 'Drawing\\Main\\Complex\\DashStopList',
 //
-//        'round' => 'Drawing\\Main\\Complex\\LineJoinRound',
-//        'bevel' => 'Drawing\\Main\\Complex\\LineJoinBevel',
-//        'miter' => 'Drawing\\Main\\Complex\\LineJoinMiterProperties',
+        'round' => 'Drawing\\Main\\Complex\\LineJoinRound',
+        'bevel' => 'Drawing\\Main\\Complex\\LineJoinBevel',
+        'miter' => 'Drawing\\Main\\Complex\\LineJoinMiterProperties',
 //
 //        'headEnd' => 'Drawing\\Main\\Complex\\LineEndProperties',
 //        'tailEnd' => 'Drawing\\Main\\Complex\\LineEndProperties',
@@ -81,7 +81,7 @@ class LineProperties extends ComplexAbstract
     function __construct($tagName = '', $attributes = array(), $options = array())
     {
         $this->attributes = array(
-            'w' => new LineWidth(),
+            'w' => new LineWidth(12700 * 2), // Manual says it default to 0 but I assure you my friend this not true
             'cap' => new LineCap(),
             'cmpd' => new CompoundLine(),
             'algn' => new PenAlignment(),
@@ -95,18 +95,35 @@ class LineProperties extends ComplexAbstract
     {
         $style = '';
 
-        if ($tmp = $this->child('solidFill')) {
-            $style .= ' border-color:' . $tmp->toCss() . ';';
+        // Stroke color
+        if ($tmp = $this->child('noFill solidFill gradFill pattFill')) {
+            $style .= ' stroke:' . $tmp->toCss() . ';';
         }
 
-        $style .= ' border-width:' . $this->w->toCss() . ';';
+        // Fill color
+        if ($tmp = $this->parent->child('noFill solidFill gradFill pattFill')) {
+            $style .= ' fill:' . $tmp->toCss() . ';';
+        }
 
-        if ($this->child('prstDash')) {
-            $style .= $this->child('prstDash')->toCssInline();
-        } else {
-            $style .= ' border-style: solid;';
+        // Line width
+        $style .= ' stroke-width:' . floatval($this->w->toCss()) . ';';
+
+        // Round/square edges
+        if ($tmp = $this->child('round bevel miter')) {
+            $style .= ' stroke-linecap:' . $tmp->toCss() . ';';
+        }
+
+        // Dash array
+        if ($tmp = $this->child('prstDash custDash')) {
+            $style .= ' stroke-dasharray:' . $tmp->toCss($this->w->toCss()) . ';';
         }
 
         return $style;
+    }
+
+
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        return null;
     }
 }

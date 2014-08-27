@@ -42,16 +42,8 @@ class PresetLineDashProperties extends ComplexAbstract
     }
 
 
-    public function toCssInline()
+    public function toCss($w)
     {
-        $style = '';
-
-        if ($this->child('prstDash')) {
-            $style .= ' border-style: ' . $this->val->toCss() . ';';
-        } else {
-            $style .= ' border-style: solid;';
-        }
-
-        return $style;
+        return $this->val->getStrokeDasharray($w);
     }
 }

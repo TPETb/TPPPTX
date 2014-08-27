@@ -29,4 +29,12 @@ class ShapeNonVisual extends ComplexAbstract
 //        'cNvSpPr' => 'Drawing\\Main\\Complex\\NonVisualDrawingShapeProps',
         'nvPr' => 'Presentation\\Main\\Complex\\ApplicationNonVisualDrawingProps',
     );
+
+
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        return null;
+    }
+
+
 } 

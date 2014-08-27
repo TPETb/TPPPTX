@@ -11,6 +11,13 @@ namespace TPPPTX\Type\Drawing\Main\Complex;
 
 use TPPPTX\Type\ComplexAbstract;
 
+/**
+ * Class NoFillProperties
+ * @package TPPPTX\Type\Drawing\Main\Complex
+ */
 class NoFillProperties extends ComplexAbstract {
 
+    public function toCss() {
+        return 'transparent';
+    }
 } 
