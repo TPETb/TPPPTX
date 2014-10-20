@@ -4,5 +4,8 @@
         "psr-0" : {
             "TPPPTX" : "src"
         }
+    },
+    "require": {
+        "monolog/monolog": "~1.11"
     }
 }

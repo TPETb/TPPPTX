@@ -112,14 +112,6 @@ class Parser
     }
 
 
-    /**
-     * @return Type\ComplexAbstract
-     */
-    public function unmarshal()
-    {
-    }
-
-
     public function getByFilepath($filepath)
     {
         if (!$this->pptxFileHandler->read($filepath)) {
