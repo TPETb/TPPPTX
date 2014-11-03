@@ -141,8 +141,9 @@ class Presentation extends RootAbstract
         foreach ($this->getChildren('sldIdLst')[0]->getChildren() as $key => $slideId) {
 //            if ($key != 1) continue;
             // Create a clone of presentation for every slide so that it can be changed and then erased to clean memory
-            // @todo rework this ro actual cloning instead of file reparsing
+            // @todo rework this to actual cloning instead of file reparsing
             $presentation = new Presentation();
+            $presentation->setLogger($this->logger);
             $presentation->load($this->parser);
             $slide = $presentation->getByFilepath($this->relations[$slideId->getAttribute('r:id')]['target']);
             $result->appendChild($slide->toHtmlDom($dom));
@@ -202,6 +203,7 @@ class Presentation extends RootAbstract
         // Parse file as it is
         $className = $this->resolveRootClassName($rootNode);
         $element = new $className();
+        $element->setLogger($this->logger);
         $element->fromDom($rootNode, array(
             'relations' => $data['relations'],
             'presentation' => &$this,

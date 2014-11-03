@@ -8,6 +8,7 @@
 
 namespace TPPPTX;
 
+use Psr\Log\LoggerAwareTrait;
 use TPPPTX\Type\Presentation\Main\Complex\Presentation;
 
 
@@ -21,6 +22,7 @@ use TPPPTX\Type\Presentation\Main\Complex\Presentation;
  */
 class Parser
 {
+    use LoggerAwareTrait;
 
     /**
      * @var FileHandler
@@ -132,6 +134,7 @@ class Parser
     public function getPresentation()
     {
         $presentation = new Presentation('presentation');
+        $presentation->setLogger($this->logger);
         $presentation->load($this);
 
         return $presentation;

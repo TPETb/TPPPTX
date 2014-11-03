@@ -52,6 +52,10 @@ class RootAbstract extends ComplexAbstract
             $className = __NAMESPACE__ . '\\' . $className;
 
             $child = new $className();
+            if (!$this->logger) {
+                d(get_called_class());
+            }
+            $child->setLogger($this->logger);
             $child->fromDom($childNode, array_merge($options, array(
                 'parent' => &$this,
                 'root' => &$this,

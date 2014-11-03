@@ -7,6 +7,7 @@
  */
 
 namespace TPPPTX;
+use Psr\Log\LoggerAwareTrait;
 
 
 /**
@@ -15,6 +16,7 @@ namespace TPPPTX;
  */
 class Converter
 {
+    use LoggerAwareTrait;
 
     /**
      * @param array $options
@@ -36,8 +38,10 @@ class Converter
         }
 
         $parser = new Parser($file);
+        $parser->setLogger($this->logger);
 
         $pageGenerator = new PageGenerator($parser);
+        $pageGenerator->setLogger($this->logger);
         $pageGenerator->saveAs($outputPath);
     }
 

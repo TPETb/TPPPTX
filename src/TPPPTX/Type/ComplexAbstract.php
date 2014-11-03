@@ -7,6 +7,7 @@
  */
 
 namespace TPPPTX\Type;
+use Psr\Log\LoggerAwareTrait;
 
 
 /**
@@ -15,6 +16,7 @@ namespace TPPPTX\Type;
  */
 abstract class ComplexAbstract
 {
+    use LoggerAwareTrait;
 
     /**
      * @var string
@@ -249,6 +251,7 @@ abstract class ComplexAbstract
 
         foreach ($node->childNodes as $childNode) {
             if (!$className = $this->getChildClassName($childNode->localName)) {
+                $this->logger->info('Child <' . $childNode->localName . '> in ' . get_called_class() . ' ignored due to no sequence mapping set.');
                 continue;
             }
 
@@ -263,6 +266,7 @@ abstract class ComplexAbstract
             $className = __NAMESPACE__ . '\\' . $className;
 
             $child = new $className();
+            $child->setLogger($this->logger);
             $child->fromDom($childNode, array_merge($options, array(
                 'parent' => &$this,
             )));

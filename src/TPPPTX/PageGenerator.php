@@ -7,6 +7,7 @@
  */
 
 namespace TPPPTX;
+use Psr\Log\LoggerAwareTrait;
 
 
 /**
@@ -15,6 +16,8 @@ namespace TPPPTX;
  */
 class PageGenerator
 {
+
+    use LoggerAwareTrait;
 
     /**
      * @var Parser
