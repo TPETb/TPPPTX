@@ -48,11 +48,16 @@ class GroupingHandler extends AbstractHandler {
      */
     public function handle(array $record)
     {
+        $index = md5($record['message']);
+
         if ($record['level'] > $this->maxLevel) {
-            return false;
+            $this->buffer[$index] = [
+                'record' => $record,
+            ];
+
+            return true;
         }
 
-        $index = md5($record['message']);
         if (array_key_exists($index, $this->buffer)) {
             $this->buffer[$index]['count']++;
             return true;
@@ -93,7 +98,9 @@ class GroupingHandler extends AbstractHandler {
 
 
         foreach ($this->buffer as $recordData) {
-            $recordData['record']['message'] .= " ({$recordData['count']} time(s))";
+            if (array_key_exists('count', $recordData))
+                $recordData['record']['message'] .= " ({$recordData['count']} time(s))";
+
             $records[] = $recordData['record'];
         }
 

@@ -48,6 +48,8 @@ class RegularTextRun extends ComplexAbstract
         if ($tmp = $this->child('rPr')) {
             $style .= $tmp->toCssInline();
         }
+        // Do not allow html engine to cut text runs containing only whitespace (people use them for paragraph spacing)
+        $style .= 'white-space:pre-wrap;';
         $container->setAttribute('style', $style);
 
         $container->nodeValue = htmlspecialchars($this->child('t')->nodeValue);

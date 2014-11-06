@@ -46,9 +46,38 @@ class BlipFillProperties extends ComplexAbstract
 
     protected $sequence = array(
         'blip' => 'Drawing\\Main\\Complex\\Blip',
-//        'srcRect' => 'Drawing\\Main\\Complex\\RelativeRect',
+        'srcRect' => 'Drawing\\Main\\Complex\\RelativeRect',
 //
 //        'tile' => 'Drawing\\Main\\Complex\\TileInfoProperties',
-//        'stretch' => 'Drawing\\Main\\Complex\\StretchInfoProperties',
+        'stretch' => 'Drawing\\Main\\Complex\\StretchInfoProperties',
     );
+
+
+    public function toHtmlDom(\DOMDocument $dom, $options = array())
+    {
+        /**
+         * todo carefully check if this is ok to apply such hack
+         * todo check if this element is always present in "default" form
+         * todo this hack has affect on StretchInfoProperties class too
+         */
+        if (!$this->child('srcRect')) {
+            $this->addChild(new RelativeRect('srcRect'));
+        }
+
+        // Simple image
+        $container = parent::toHtmlDom($dom, array(
+            'tagName' => 'img',
+            'noChildren' => true,
+        ));
+
+        $container->setAttribute('src', $this->child('blip')->getFilepath());
+
+        return $container;
+    }
+
+
+    public function toCssInline()
+    {
+        return 'overflow:hidden;';
+    }
 } 

@@ -161,6 +161,8 @@ class TextParagraphProperties extends ComplexAbstract
                 $style .= ' line-height:' . $tmp[0]->toCss() . ';';
             if (count($tmp = $this->getChildren('spcBef')))
                 $style .= ' margin-top:' . $tmp[0]->toCss() . ';';
+            // todo continue tests if adding default extra margin is acceptable
+//            else $style .= ' margin-top:0.4em;';
             if (count($tmp = $this->getChildren('spcAft')))
                 $style .= ' margin-bottom:' . $tmp[0]->toCss() . ';';
 
@@ -170,6 +172,8 @@ class TextParagraphProperties extends ComplexAbstract
                 $style .= ' color:' . $tmp[0]->toCss() . ';';
             if (count($tmp = $this->getChildren('buSzPct buSzPts')))
                 $style .= ' font-size:' . $tmp[0]->toCss() . ';';
+            if ($tmp = $this->child('buFont'))
+                $style .= ' font-family:' . $tmp->toCss() . ';';
 
             $style .= " height: 1px;";
         }

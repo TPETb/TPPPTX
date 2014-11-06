@@ -296,7 +296,6 @@ abstract class ComplexAbstract
                 $style .= $child->toCssInline();
             }
             if (!isset($options['noChildren']) && $tmp = $child->toHtmlDom($dom)) {
-                // todo check if element can both convert to inline css and html
                 $container->appendChild($tmp);
             }
         }

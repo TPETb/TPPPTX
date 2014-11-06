@@ -184,9 +184,13 @@ class TextCharacterProperties extends ComplexAbstract
         } else if ($tmp = $this->parent->parent->child('pPr')) {
             if ($tmp = $tmp->child('lnSpc')) {
                 $style .= ' line-height:' . $tmp->toCss() . ';';
+            } else {
+                // todo check if 120% is right value
+                $style .= ' line-height:120%;';
             }
         } else {
-            $style .= ' line-height:100%;';
+            // todo check if 100% is right value
+            $style .= ' line-height:120%;';
         }
 
         if (count($tmp = $this->getChildren('latin')))
