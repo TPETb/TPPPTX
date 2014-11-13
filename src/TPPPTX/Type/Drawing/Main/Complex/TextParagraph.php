@@ -71,7 +71,7 @@ class TextParagraph extends ComplexAbstract
             }
         }
         // Styles from master
-        if ($this->parent->parent->isPlaceholder()) {
+        if (method_exists($this->parent->parent, 'isPlaceholder') && $this->parent->parent->isPlaceholder()) {
             if (stristr($this->parent->parent->getPlaceholderType(), 'ctrTitle')
                 || stristr($this->parent->parent->getPlaceholderType(), 'title')
             ) {

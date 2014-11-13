@@ -176,8 +176,11 @@ class TextCharacterProperties extends ComplexAbstract
             $style .= ' font-weight:bold;';
         if ($this->i)
             $style .= ' font-style:italic;';
-        if ($this->u->isPresent() && $this->u->get())
-            $style .= ' text-decoration:underline;';
+        if ($this->u->isPresent())
+            if ($this->u->get() !== 'none')
+                $style .= ' text-decoration:underline;';
+            else
+                $style .= ' text-decoration:none;';
 
         if ($this->spc->isPresent()) {
             $style .= ' line-height:' . $this->spc->toCss() . ';';

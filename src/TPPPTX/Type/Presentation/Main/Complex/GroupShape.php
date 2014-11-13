@@ -43,7 +43,7 @@ class GroupShape extends ComplexAbstract
 
         'sp' => 'Presentation\\Main\\Complex\\Shape',
         'grpSp' => 'Presentation\\Main\\Complex\\GroupShape',
-//        'graphicFrame' => 'Presentation\\Main\\Complex\\GraphicalObjectFrame',
+        'graphicFrame' => 'Presentation\\Main\\Complex\\GraphicalObjectFrame',
         'cxnSp' => 'Presentation\\Main\\Complex\\Connector',
         'pic' => 'Presentation\\Main\\Complex\\Picture',
 //        'contentPart' => 'Presentation\\Main\\Complex\\Rel',

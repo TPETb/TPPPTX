@@ -52,7 +52,21 @@ class RegularTextRun extends ComplexAbstract
         $style .= 'white-space:pre-wrap;';
         $container->setAttribute('style', $style);
 
-        $container->nodeValue = htmlspecialchars($this->child('t')->nodeValue);
+        // filter text
+        $text = $this->child('t')->nodeValue;
+        $text = str_replace("\t", '∆', $text);
+        $text = ltrim($text);
+        $text = htmlentities($text);
+        if (!$text) $text = '&nbsp;';
+        $text = str_replace("∆", '&#9;', $text);
+
+        $container->nodeValue = $text;
+
+//        if (trim($this->child('t')->nodeValue)) {
+//            $container->nodeValue = htmlspecialchars(trim($this->child('t')->nodeValue));
+//        } else {
+//            $container->nodeValue = '&nbsp;';
+//        }
 
         if (isset($_GET['show_class'])) {
             $container->setAttribute('data-class', get_called_class());
