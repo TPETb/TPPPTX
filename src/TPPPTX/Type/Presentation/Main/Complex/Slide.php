@@ -54,7 +54,7 @@ class Slide extends RootAbstract
         'cSld' => 'Presentation\\Main\\Complex\\CommonSlideData',
 //        'clrMapOvr' => 'Drawing\\Main\\Complex\\ColorMappingOverride',
 //         *         <xsd:group ref="EG_ChildSlide" minOccurs="0" maxOccurs="1"/>
-//         *         <xsd:element name="transition" type="CT_SlideTransition" minOccurs="0" maxOccurs="1"/>
+        'transition' => 'Presentation\\Main\\Complex\\SlideTransition',
 //         *         <xsd:element name="timing" type="CT_SlideTiming" minOccurs="0" maxOccurs="1"/>
 //         *         <xsd:element name="extLst" type="CT_ExtensionListModify" minOccurs="0" maxOccurs="1"/>
     );
@@ -118,6 +118,10 @@ class Slide extends RootAbstract
         }
 
         $slide->appendChild($this->child('cSld')->toHtmlDom($dom));
+
+        if ($tmp = $this->child('transition')) {
+            $slide->setAttribute('data-' . $tmp->toDataAttribute()[0], $tmp->toDataAttribute()[1]);
+        }
 
         return $slide;
     }

@@ -282,6 +282,7 @@ abstract class ComplexAbstract
      * @param \DOMDocument $dom
      * @param array $options
      * @return \DOMElement
+     * @todo rework all overrides to include the common part
      */
     public function toHtmlDom(\DOMDocument $dom, $options = array())
     {
